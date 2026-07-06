@@ -1,4 +1,6 @@
-# Kanban Studio
+# TaskPilot Frontend
+
+Next.js frontend for TaskPilot. See the [root README](../README.md) for project overview and setup.
 
 ## Run
 

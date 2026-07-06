@@ -101,14 +101,14 @@ export const KanbanBoard = () => {
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[var(--gray-text)]">
-                Single Board Kanban
+                Project Management
               </p>
               <h1 className="mt-3 font-display text-4xl font-semibold text-[var(--navy-dark)]">
-                Kanban Studio
+                TaskPilot
               </h1>
               <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--gray-text)]">
-                Keep momentum visible. Rename columns, drag cards between stages,
-                and capture quick notes without getting buried in settings.
+                Plan, track, and ship with clarity. Rename columns, drag cards
+                between stages, and capture task details without extra complexity.
               </p>
             </div>
             <div className="rounded-2xl border border-[var(--stroke)] bg-[var(--surface)] px-5 py-4">

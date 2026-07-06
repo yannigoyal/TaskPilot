@@ -1,1 +1,1 @@
-This file should be updated with a description of the Backend
+This directory will contain the TaskPilot FastAPI backend.

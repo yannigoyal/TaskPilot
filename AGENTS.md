@@ -1,8 +1,8 @@
-# The Project Management MVP web app
+# TaskPilot
 
 ## Business Requirements
 
-This project is building a Project Management App. Key features:
+TaskPilot is a project management web app. Key features:
 - A user can sign in
 - When signed in, the user sees a Kanban board representing their project
 - The Kanban board has fixed columns that can be renamed

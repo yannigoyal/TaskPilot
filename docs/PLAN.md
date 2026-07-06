@@ -1,4 +1,4 @@
-# High level steps for project
+# High level steps for TaskPilot
 
 Part 1: Plan
 

@@ -174,3 +174,9 @@ cython_debug/
 
 .DS_Store
 
+# Node / Next.js (frontend)
+node_modules/
+.next/
+out/
+frontend/test-results/
+frontend/coverage/

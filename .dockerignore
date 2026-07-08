@@ -1,0 +1,16 @@
+.git
+.gitignore
+**/__pycache__
+**/.pytest_cache
+**/*.pyc
+.env
+node_modules
+backend/.venv
+frontend/node_modules
+frontend/.next
+frontend/out
+frontend/test-results
+frontend/coverage
+docs
+*.md
+!backend/**/*.md

@@ -26,7 +26,7 @@ For the MVP, this will run locally (in a docker container)
 - Use OpenRouter for the AI calls. An OPENROUTER_API_KEY is in .env in the project root
 - Use `openai/gpt-oss-120b` as the model
 - Use SQLLite local database for the database, creating a new db if it doesn't exist
-- Start and Stop server scripts for Mac, PC, Linux in scripts/
+- Start and stop scripts in `scripts/` (Docker Compose wrappers)
 
 ## Starting Point
 

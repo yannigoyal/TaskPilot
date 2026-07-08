@@ -4,39 +4,32 @@ TaskPilot is an educational project management application built around a single
 
 ## Current Status
 
-The repository contains a working **frontend-only** demo. Board state lives in browser memory and resets on page reload. There is no backend, database, authentication, or AI integration yet.
+- **Docker stack:** FastAPI serves the static Kanban UI at `/` and `GET /api/health` at `/api/health`.
+- **Frontend dev:** Next.js Kanban demo also runs standalone with `npm run dev` on port 3000.
 
-## Implemented Features
+Board state is in-memory only (reload resets to seed data).
 
-- Single Kanban board with five columns (Backlog, Discovery, In Progress, Review, Done)
-- Rename columns inline
-- Drag and drop cards between columns and within a column
-- Add and delete cards with title and details
-- Responsive UI using the TaskPilot color scheme
+## Run the stack (Docker)
 
-## Technology Stack
+Prerequisites: Docker and Docker Compose. Run from the **repo root** (not `frontend/`):
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js 16, React 19, TypeScript |
-| Styling | Tailwind CSS 4 |
-| Drag and drop | @dnd-kit |
-| Unit tests | Vitest, Testing Library |
-| E2E tests | Playwright |
-
-**Planned (not implemented):** Python FastAPI backend, SQLite, Docker, OpenRouter AI, platform start/stop scripts.
-
-## Project Structure
-
-```
-├── AGENTS.md          # Project requirements and technical direction
-├── docs/PLAN.md       # Phased implementation roadmap
-├── frontend/          # Next.js app (implemented)
-├── backend/           # FastAPI backend (planned)
-└── scripts/           # Start/stop scripts (planned)
+```bash
+./scripts/start
 ```
 
-## Local Development
+Open [http://localhost:8000](http://localhost:8000). Sign in with `user` / `password` to open the Kanban board.
+
+```bash
+./scripts/stop
+```
+
+Verify API:
+
+```bash
+curl http://localhost:8000/api/health
+```
+
+## Frontend-only development
 
 ```bash
 cd frontend
@@ -48,28 +41,31 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Testing
 
-From the `frontend/` directory:
+Backend (from `backend/`):
 
 ```bash
-npm run lint
-npm run test:unit
-npm run build
-npm run test:e2e
+uv sync --group dev
+uv run pytest
 ```
 
-Run all unit and E2E tests with `npm run test:all`.
+Frontend (from `frontend/`):
 
-## Future Roadmap
+```bash
+npm run test:unit
+npm run test:e2e              # vs dev server (:3000)
+npm run test:e2e:docker       # vs Docker (:8000) — start stack from repo root first
+```
 
-Development follows the ten-part plan in [docs/PLAN.md](docs/PLAN.md):
+## Project Structure
 
-1. Finalize planning documentation
-2. Docker and FastAPI scaffolding
-3. Serve the built frontend from the backend
-4. Sign-in with dummy credentials
-5. Database schema design
-6. Backend Kanban API
-7. Frontend wired to the backend
-8. OpenRouter AI connectivity
-9. AI-driven board updates via structured outputs
-10. AI chat sidebar in the UI
+```
+├── AGENTS.md
+├── docs/PLAN.md
+├── Dockerfile
+├── docker-compose.yml
+├── backend/           # FastAPI app
+├── frontend/          # Next.js Kanban (static export)
+└── scripts/           # start / stop (repo root)
+```
+
+Roadmap: [docs/PLAN.md](docs/PLAN.md)

@@ -1,1 +1,18 @@
-This directory will contain start and stop scripts for TaskPilot on Mac, PC, and Linux.
+# TaskPilot Scripts
+
+Docker Compose wrappers to start and stop the local stack.
+
+## Commands
+
+From repo root:
+
+```bash
+./scripts/start   # docker compose up --build -d
+./scripts/stop    # docker compose down
+```
+
+App URL: http://localhost:8000
+
+Verify: open `/` for the Kanban board, or `curl http://localhost:8000/api/health`.
+
+Requires Docker and Docker Compose.

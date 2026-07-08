@@ -179,4 +179,5 @@ node_modules/
 .next/
 out/
 frontend/test-results/
-frontend/coverage/
+frontend/coverage
+backend/static/

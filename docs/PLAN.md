@@ -1,37 +1,563 @@
-# High level steps for TaskPilot
+# TaskPilot Implementation Plan
 
-Part 1: Plan
+Incremental build plan for TaskPilot. Complete parts in order. After each part: run that part's tests, confirm success criteria, commit, and get user approval before starting the next part.
 
-Enrich this document to plan out each of these parts in detail, with substeps listed out as a checklist to be checked off by the agent, and with tests and success critieria for each. Also create an AGENTS.md file inside the frontend directory that describes the existing code there. Ensure the user checks and approves the plan.
+## Locked decisions
 
-Part 2: Scaffolding
+| Topic | Decision |
+|-------|----------|
+| **Card editing** | Required for MVP; implement during Part 7 (frontend + backend integration). |
+| **Database** | Normalized SQLite tables for `users`, `boards`, `columns`, and `cards` (not a single JSON blob). |
+| **Auth (Part 4)** | Frontend-only fake login (`user` / `password`). No backend session yet. |
+| **Auth (Parts 6–7)** | After login, frontend sends a simple trusted-local identity header (e.g. `X-User: user`) on API calls; backend maps it to the seeded demo user. Not real security — local MVP only. |
+| **Frontend serving** | Next.js static export (`output: 'export'`); FastAPI serves built files at `/`. |
+| **API prefix** | All backend routes under `/api/...` so they do not clash with static paths. |
+| **AI chat history** | In-memory for the current browser session only; not persisted in SQLite. |
+| **AI board updates** | Granular operations (create / edit / move / delete cards, rename column) — not full-board snapshot replace. |
+| **Testing** | ~80% unit coverage minimum where unit tests exist; robust integration tests; keep Playwright green. |
+| **E2E strategy** | Day-to-day: Playwright against `npm run dev` (port 3000). Part sign-off: also run Playwright (or integration checks) against the Docker-served stack on the same origin as production. |
+| **Scripts** | Docker Compose wrappers only in `scripts/` (`start` / `stop` calling `docker compose`). No separate Mac/PC/Linux native scripts. |
+| **Secrets** | Never commit secrets. Add `.env.example` with `OPENROUTER_API_KEY` when AI work begins (Part 8). |
+| **Docker build** | Multi-stage image: Node stage builds frontend static export; Python stage runs FastAPI + serves `out/`. |
+| **SQLite persistence** | DB file on a Docker volume so data survives container restarts; path documented in `docs/DATABASE.md` (Part 5). |
 
-Set up the Docker infrastructure, the backend in backend/ with FastAPI, and write the start and stop scripts in the scripts/ directory. This should serve example static HTML to confirm that a 'hello world' example works running locally and also make an API call.
+## Architecture overview
 
-Part 3: Add in Frontend
+```
+Browser
+  |
+  v
+FastAPI (single container)
+  |-- GET  /              --> static Next.js export (Kanban UI)
+  |-- GET  /api/health    --> health check
+  |-- *    /api/board/*   --> Kanban CRUD (Parts 6–7)
+  |-- POST /api/chat      --> AI chat (Parts 9–10)
+  |
+  v
+SQLite (volume-mounted file)
+```
 
-Now update so that the frontend is statically built and served, so that the app has the demo Kanban board displayed at /. Comprehensive unit and integration tests.
+Static serving notes (Parts 3+):
 
-Part 4: Add in a fake user sign in experience
+- Mount API routes before the static catch-all.
+- Serve `index.html` (or equivalent) for unknown non-API paths so client-side routing works on refresh.
+- Next export outputs to `frontend/out/`; copy or mount into the backend image.
 
-Now update so that on first hitting /, you need to log in with dummy credentials ("user", "password") in order to see the Kanban, and you can log out. Comprehensive tests.
+## Test standards (all parts)
 
-Part 5: Database modeling
+- Prefer proving behavior with evidence (commands, HTTP responses, test output), not inspection alone.
+- Unit coverage target: approximately **80%** for new backend/frontend logic under test.
+- Integration tests for API and Docker-served flows where a part introduces them.
+- Playwright E2E: keep existing Kanban flows passing; extend when sign-in, persistence, edit, or AI UI land.
+- Do not guess at failures; identify root cause, then fix.
+- Before marking a part done: run the part's **dev** test suite; for Parts 3+, also verify the **Docker-served** path where the plan lists it.
 
-Now propose a database schema for the Kanban, saving it as JSON. Document the database approach in docs/ and get user sign off.
+---
 
-Part 6: Backend
+## Part 1: Plan
 
-Now add API routes to allow the backend to read and change the Kanban for a given user; test this thoroughly with backend unit tests. The database should be created if it doesn't exist.
+Enrich this document and document the existing frontend for agents. No application features.
 
-Part 7: Frontend + Backend
+### Checklist
 
-Now have the frontend actually use the backend API, so that the app is a proper persistent Kanban board. Test very throughly.
+- [x] Review root `AGENTS.md`, this plan, and the current codebase
+- [x] Record locked product/architecture decisions in this document (including user choices: Compose scripts, dual E2E, `X-User` header, AI operations)
+- [x] Expand all 10 parts with detailed substeps, tests, and success criteria
+- [x] Create `frontend/AGENTS.md` describing the existing frontend architecture
+- [x] User reviews and approves this plan before Part 2
 
-Part 8: AI connectivity
+### Tests
 
-Now allow the backend to make an AI call via OpenRouter. Test connectivity with a simple "2+2" test and ensure the AI call is working.
+- [x] Manual review: each part has actionable checklist, tests, and success criteria
+- [x] Manual review: `frontend/AGENTS.md` matches the repo (App Router, components, in-memory board, test commands, `data-testid` conventions)
+- [x] Manual review: locked decisions are consistent with root `AGENTS.md` (note: root `AGENTS.md` still mentions platform-specific scripts — align in Part 2)
 
-Part 9: Now extend the backend call so that it always calls the AI with the JSON of the Kanban board, plus the user's question (and conversation history). The AI should respond with Structured Outputs that includes the response to the user and optionaly an update to the Kanban. Test thoroughly.
+### Success criteria
 
-Part 10: Now add a beautiful sidebar widget to the UI supporting full AI chat, and allowing the LLM (as it determines) to update the Kanban based on its Structured Outputs. If the AI updates the Kanban, then the UI should refresh automatically.
+- Each part has a detailed checklist, tests, and success criteria.
+- Architecture decisions above are explicit and traceable to user approval.
+- `frontend/AGENTS.md` exists, is accurate, and documents architecture—not only a file list.
+- User has approved proceeding to Part 2.
+
+---
+
+## Part 2: Scaffolding
+
+Docker + FastAPI hello world. Static HTML demo page + API call. No real Kanban yet.
+
+### Checklist
+
+**Docker and Python**
+
+- [x] Add multi-stage `Dockerfile`: final stage uses Python + `uv`; optional earlier stage can be minimal for Part 2 (full Node build stage lands in Part 3)
+- [x] Add `docker-compose.yml` with one service, exposed port (e.g. 8000), and env-file support for future `.env`
+- [x] Create `backend/pyproject.toml` managed by `uv` (FastAPI, uvicorn, pytest, httpx for tests)
+- [x] Create `backend/` package with FastAPI app entrypoint (e.g. `backend/main.py` or `backend/app/main.py`)
+- [x] Add `GET /api/health` (or `/api/hello`) returning JSON `{ "status": "ok" }` (or similar)
+
+**Static demo page**
+
+- [x] Serve a minimal static HTML page at `/` from FastAPI (`StaticFiles` or embedded HTML for Part 2 only)
+- [x] Demo page fetches `/api/health` and displays the result on screen (proves same-origin API + static coexist)
+
+**Scripts and docs**
+
+- [x] Add `scripts/start` and `scripts/stop` (or `.sh`) that wrap `docker compose up` / `down`
+- [x] Update `backend/AGENTS.md` with run commands, test commands, and module layout
+- [x] Update `scripts/AGENTS.md` with how to start/stop the stack
+- [x] Add minimal root `README.md` notes: prerequisites (Docker), start/stop commands, verify URL
+- [x] Update root `AGENTS.md` scripts bullet to match Compose-only wrappers (if not already)
+
+**Quality**
+
+- [x] Add `.dockerignore` to keep image builds fast (exclude `node_modules`, `.git`, etc.)
+
+### Tests
+
+- [x] `docker compose build` succeeds
+- [x] `scripts/start` brings stack up; `scripts/stop` brings it down cleanly
+- [x] `curl http://localhost:<port>/api/health` returns 200 and expected JSON
+- [x] `curl http://localhost:<port>/` returns HTML containing the demo page
+- [x] Browser: open `/`, confirm API result is shown (not a failed fetch)
+- [x] `uv run pytest` in `backend/` — at least one test for the health endpoint using `TestClient`
+- [x] No Kanban, auth, DB, or AI code introduced
+
+### Success criteria
+
+- Local `scripts/start` → open app in browser → see hello/demo page + successful API call → `scripts/stop`.
+- Python dependencies managed exclusively with `uv` inside Docker (no parallel `pip install` workflow).
+- `/api/*` prefix established for all backend routes.
+- Foundation ready for Part 3 to add frontend build stage and replace demo HTML with Next export.
+
+---
+
+## Part 3: Add in Frontend
+
+Statically export the Next.js app and serve it from FastAPI at `/`.
+
+### Checklist
+
+**Next.js static export**
+
+- [x] Set `output: 'export'` in `frontend/next.config.ts`
+- [x] Add any required export options (`images.unoptimized`, `trailingSlash`, etc.) if build fails
+- [x] Confirm `npm run build` produces `frontend/out/`
+- [x] Verify drag-and-drop and all client components work from static files (no server actions or dynamic SSR required)
+
+**Docker build pipeline**
+
+- [x] Extend `Dockerfile` with Node stage: `npm ci`, `npm run build` in `frontend/`
+- [x] Copy `frontend/out/` into Python image path served by FastAPI
+- [x] Remove or bypass Part 2 demo HTML; `/` serves the exported Kanban app
+
+**FastAPI static serving**
+
+- [x] Serve static export at `/` with API routes still under `/api/...`
+- [x] Add SPA fallback: non-API unknown paths return `index.html` so refresh on `/` works
+- [x] Keep `GET /api/health` working
+
+**Documentation**
+
+- [x] Update `frontend/AGENTS.md` with static export build output path and any config changes
+- [x] Document dual E2E approach: dev server vs Docker (see Tests below)
+
+### Tests
+
+**Build and unit**
+
+- [x] `cd frontend && npm run build` succeeds
+- [x] `cd frontend && npm run test:unit` passes
+- [x] `cd frontend && npm run lint` passes (no new errors)
+
+**E2E — dev (day-to-day)**
+
+- [x] `cd frontend && npm run test:e2e` passes against `npm run dev` on port 3000
+- [x] Existing flows: load board (5 columns), add card, move card between columns
+
+**E2E / integration — Docker (sign-off)**
+
+- [x] With stack up: `GET /` returns HTML for TaskPilot Kanban (not Part 2 demo page)
+- [x] Browser or Playwright against Docker URL: board shows five columns and seed cards
+- [x] `GET /api/health` still returns 200 from the same origin
+- [x] Document Docker Playwright command or config (e.g. `PLAYWRIGHT_BASE_URL`, separate `playwright.docker.config.ts`, or npm script) for sign-off runs
+
+### Success criteria
+
+- Visiting `/` on the Docker-served stack shows the existing demo Kanban board with seed data.
+- Board state is still in-memory only (reload resets to seed).
+- Frontend static assets and `/api/*` coexist on one origin with no CORS issues.
+- Dev E2E suite remains green; Docker-served smoke/E2E path is documented and verified once.
+
+---
+
+## Part 4: Fake user sign-in experience
+
+Frontend-only gate with dummy credentials. Prepare identity header for later backend wiring.
+
+### Checklist
+
+**Login UI**
+
+- [x] On first visit to `/`, show a login screen before the Kanban
+- [x] Login form: username + password fields, submit button styled with TaskPilot colors (purple for primary action per root `AGENTS.md`)
+- [x] Accept only `user` / `password`; show clear error for invalid credentials
+- [x] Match TaskPilot color scheme and existing visual quality (fonts, surfaces, accent yellow)
+
+**Session behavior**
+
+- [x] After successful login, show the Kanban board
+- [x] Persist signed-in state in `sessionStorage` (or equivalent) for the browser tab session
+- [x] Log out control visible when signed in; logout clears session and returns to login screen
+- [x] Closing tab/window requires login again (sessionStorage semantics)
+
+**Prepare backend identity (no API yet)**
+
+- [x] Define a small auth helper module (e.g. `src/lib/auth.ts`) with `login`, `logout`, `isAuthenticated`, `getAuthHeaders`
+- [x] On login success, store username; `getAuthHeaders()` returns `{ 'X-User': 'user' }` for future API calls (unused until Part 7)
+- [x] Keep logic thin so Part 7 only wires headers into fetch calls
+
+**Layout**
+
+- [x] Refactor `page.tsx` or add `LoginGate` component to conditionally render login vs `KanbanBoard`
+
+### Tests
+
+- [x] Unit tests for `auth.ts`: valid credentials, invalid credentials, logout clears state, `getAuthHeaders` when authenticated
+- [x] Component tests: login success shows board; login failure shows error; logout hides board
+- [x] Playwright (dev): unauthenticated user cannot see Kanban columns
+- [x] Playwright (dev): login with `user`/`password` shows board with 5 columns
+- [x] Playwright (dev): logout returns to login screen
+- [x] ~80% coverage on new auth-related units
+- [x] Existing Kanban Playwright tests updated to log in first (or use shared `beforeEach` helper)
+
+### Success criteria
+
+- Unauthenticated users never see the board or seed data.
+- Valid dummy login and logout work with no backend API.
+- `X-User` header helper exists and is ready for Part 7; no API calls yet.
+- All Playwright tests pass in dev; Docker sign-off still shows login gate when stack is up.
+
+---
+
+## Part 5: Database modeling
+
+Propose and document normalized SQLite schema and REST API contract. Get user sign-off before coding routes.
+
+### Checklist
+
+**Schema design (`docs/DATABASE.md`)**
+
+- [ ] Tables: `users`, `boards`, `columns`, `cards` with FKs and sensible indexes
+- [ ] `users`: id, username (unique), created_at — supports future multi-user
+- [ ] `boards`: id, user_id (FK), title, created_at — one board per user for MVP
+- [ ] `columns`: id, board_id (FK), title, position (integer order) — fixed count at seed time, renamable
+- [ ] `cards`: id, column_id (FK), title, details, position (integer order within column)
+- [ ] Document create-if-missing behavior and default DB path (e.g. `data/taskpilot.db`)
+- [ ] Document Docker volume mount (e.g. `./data:/app/data`) so SQLite survives restarts
+- [ ] Seed plan: demo user `user`, one board, five columns matching frontend names, eight seed cards matching `frontend/src/lib/kanban.ts` `initialData`
+
+**API contract (`docs/API.md`)**
+
+- [ ] Document all Part 6 endpoints, request/response shapes, and error cases
+- [ ] `GET /api/board` — returns `BoardData`-compatible JSON for authenticated user (via `X-User` header)
+- [ ] `PATCH /api/columns/{id}` — rename column (title)
+- [ ] `POST /api/cards` — create card (column_id, title, details, optional position)
+- [ ] `PATCH /api/cards/{id}` — update card (title, details)
+- [ ] `DELETE /api/cards/{id}` — delete card
+- [ ] `POST /api/cards/{id}/move` — move/reorder (target column_id, position)
+- [ ] Note: IDs are server-generated (UUID or similar); frontend client IDs from demo are seed-only
+- [ ] Document 401/404 behavior for missing user or unknown resources
+
+**Alignment**
+
+- [ ] Map normalized DB rows ↔ frontend `BoardData` shape (assembly in backend)
+- [ ] Confirm schema supports rename, move, add, delete, edit without redesign
+- [ ] Explicitly state: AI chat history is NOT stored in DB
+
+**Approval gate**
+
+- [ ] User reviews and approves `docs/DATABASE.md` and `docs/API.md` before Part 6 starts
+
+### Tests
+
+- [ ] Review-only: schema supports all Kanban operations and future multi-user
+- [ ] Review-only: API contract covers every UI action the frontend will need in Part 7
+- [ ] Review-only: seed data parity with `initialData` documented
+
+### Success criteria
+
+- Clear, simple normalized SQLite design in `docs/DATABASE.md`.
+- REST API contract in `docs/API.md` aligned with `BoardData` and `X-User` header auth.
+- Docker volume strategy documented.
+- User has explicitly approved both documents.
+- No production API implementation required in this part (optional read-only spike only).
+
+---
+
+## Part 6: Backend Kanban API
+
+Implement SQLite + CRUD APIs per `docs/API.md`. Create DB if missing.
+
+### Checklist
+
+**Database layer**
+
+- [ ] Implement schema migration or `CREATE TABLE IF NOT EXISTS` on startup
+- [ ] Auto-create DB file if absent at documented path
+- [ ] Seed demo user (`user`), board, five columns, eight cards if DB is new (match Part 5 seed spec)
+- [ ] Implement repository/DB helpers: load full board for user, mutate columns/cards
+
+**API routes (under `/api`)**
+
+- [ ] Dependency or middleware reads `X-User` header, resolves to `users` row (401 if missing/unknown)
+- [ ] `GET /api/board` — full board as `BoardData` JSON
+- [ ] `PATCH /api/columns/{id}` — rename
+- [ ] `POST /api/cards` — create (server assigns id)
+- [ ] `PATCH /api/cards/{id}` — update title/details
+- [ ] `DELETE /api/cards/{id}`
+- [ ] `POST /api/cards/{id}/move` — change column and/or position
+- [ ] All mutations validate ownership via board → user chain
+
+**Integration with static serving**
+
+- [ ] API routes registered before static mount; no route conflicts
+- [ ] Update `backend/AGENTS.md` with DB path, seed behavior, test commands, module map
+
+### Tests
+
+- [ ] Pytest: DB auto-creation when file missing
+- [ ] Pytest: seed data present after first init (column count, card count, titles)
+- [ ] Pytest: `GET /api/board` with `X-User: user` returns expected shape
+- [ ] Pytest: `GET /api/board` without header returns 401
+- [ ] Pytest: rename column persists on second read
+- [ ] Pytest: create, update, delete card
+- [ ] Pytest: move card within column and across columns (order preserved)
+- [ ] ~80% coverage on new backend board/DB modules
+- [ ] Manual: `curl` exercises against running Docker stack (document example commands in `backend/AGENTS.md`)
+
+### Success criteria
+
+- Backend alone can fully read and mutate the demo user's Kanban in SQLite.
+- DB file is created and seeded automatically when missing.
+- `X-User` header is required and mapped to the demo user.
+- No frontend wiring yet; verifiable via pytest and curl.
+- Static frontend from Part 3 still serves at `/` unchanged.
+
+---
+
+## Part 7: Frontend + Backend integration
+
+Wire the UI to the API. Persistent board. Add card editing. Send `X-User` on all API calls.
+
+### Checklist
+
+**API client**
+
+- [ ] Add `src/lib/api.ts` (or similar): typed fetch wrappers for each `docs/API.md` endpoint
+- [ ] Attach `getAuthHeaders()` from `auth.ts` to every request
+- [ ] Map API errors to simple user-visible messages (minimal)
+
+**Board data flow**
+
+- [ ] Replace `useState(initialData)` with load-from-API after login (loading + error states)
+- [ ] On column rename: debounce or blur-triggered `PATCH` (keep UI responsive)
+- [ ] On drag end: `POST .../move` with target column and position
+- [ ] On add card: `POST /api/cards`; use server-returned id in local state
+- [ ] On delete card: `DELETE /api/cards/{id}`
+- [ ] Refetch or merge server response after mutations (keep simple; prefer refetch on error)
+
+**Card editing (new UI)**
+
+- [ ] Add edit affordance on `KanbanCard` (e.g. click title or Edit button)
+- [ ] Inline form or modal for title + details; save via `PATCH /api/cards/{id}`
+- [ ] Cancel discards local edits
+
+**Auth integration**
+
+- [ ] Login still uses fake credentials; successful login enables API-backed board
+- [ ] Logout clears session; re-login shows persisted board from SQLite
+- [ ] Unauthenticated users cannot trigger API calls
+
+**Docs**
+
+- [ ] Update `frontend/AGENTS.md` with API client, data flow, and edit UI
+
+### Tests
+
+- [ ] Unit tests for API client (mock `fetch`) and response parsing
+- [ ] Unit tests for card edit form validation/submit logic
+- [ ] Component test: edit card updates displayed title/details
+- [ ] Integration (backend pytest or manual): full round-trip matches frontend actions
+- [ ] Playwright (dev): login → rename column → reload → name persisted
+- [ ] Playwright (dev): login → add card → reload → card persisted
+- [ ] Playwright (dev): login → move card → reload → position persisted
+- [ ] Playwright (dev): login → edit card → reload → edits persisted
+- [ ] Playwright (dev): login → delete card → reload → card gone
+- [ ] Playwright (dev): logout → login → board state from DB still correct
+- [ ] Playwright (Docker sign-off): at least one persistence smoke test against stack URL
+- [ ] ~80% coverage on new frontend integration units
+- [ ] All prior Kanban + auth E2E tests pass
+
+### Success criteria
+
+- The app is a persistent Kanban for the demo user; reload does not reset to hardcoded seed (unless DB was recreated).
+- Card editing works end-to-end.
+- Every board mutation goes through the API with `X-User` header.
+- Logout/login does not lose board data.
+- Dev and Docker sign-off E2E paths pass.
+
+---
+
+## Part 8: AI connectivity
+
+Prove OpenRouter works from the backend with a trivial call.
+
+### Checklist
+
+- [ ] Add `.env.example` at repo root with `OPENROUTER_API_KEY=` and brief comment
+- [ ] Wire `env_file: .env` in `docker-compose.yml` (gitignored `.env` for local key)
+- [ ] Add OpenRouter client module in backend (httpx or official OpenAI-compatible client)
+- [ ] Use model `openai/gpt-oss-120b` per root `AGENTS.md`
+- [ ] Add `POST /api/ai/ping` (or internal test helper) sending a trivial prompt ("What is 2+2?")
+- [ ] Return model reply in JSON; clear 503 or 500 with message when key is missing
+- [ ] Do not expose API key to frontend
+- [ ] Update `backend/AGENTS.md` with env var requirements
+
+### Tests
+
+- [ ] Unit test: OpenRouter client with mocked HTTP — parses response text
+- [ ] Unit test: missing `OPENROUTER_API_KEY` raises clear error (no silent success)
+- [ ] Integration test: with mocked OpenRouter, `POST /api/ai/ping` returns 200
+- [ ] Optional live test (marked `@pytest.mark.live` or skipped in CI): real call returns "4" when key present
+- [ ] Manual: with real key in `.env`, curl ping endpoint and confirm sensible answer
+- [ ] ~80% coverage on new AI client module
+
+### Success criteria
+
+- With valid key in `.env`, backend completes a real OpenRouter call.
+- Without key, failure is obvious in API response and logs.
+- No Kanban mutation or chat UI yet.
+- Kanban API and static frontend still work unchanged.
+
+---
+
+## Part 9: Kanban-aware AI (structured outputs)
+
+Send board context + user question + conversation history to the model; return reply and optional granular board operations.
+
+### Checklist
+
+**Operation schema**
+
+- [ ] Define Pydantic models for AI response: `{ message: string, operations?: Operation[] }`
+- [ ] Operation types (granular): e.g. `create_card`, `update_card`, `delete_card`, `move_card`, `rename_column`
+- [ ] Each operation type has required fields documented in `docs/API.md` or `docs/AI.md`
+- [ ] Document prompt structure: current board JSON, user message, recent history
+
+**Chat endpoint**
+
+- [ ] `POST /api/chat` — body: `{ message: string, history: Message[] }`; requires `X-User`
+- [ ] Load current board from DB for context
+- [ ] Call OpenRouter with structured output instruction (JSON schema or tool-style parsing)
+- [ ] Parse and validate response; reject malformed operations with clear error (no DB corruption)
+- [ ] Apply valid operations sequentially via existing Part 6 persistence layer
+- [ ] Return `{ message, board? }` — include updated `BoardData` if any operations applied
+
+**Safety**
+
+- [ ] Validate column/card IDs exist before mutate; unknown IDs fail that operation or entire request (pick one, document it)
+- [ ] Transaction or rollback strategy if partial apply is risky (keep simple: all-or-nothing preferred)
+- [ ] History stays in request payload only — never written to SQLite
+
+**Docs**
+
+- [ ] Add `docs/AI.md` describing operation types, prompt strategy, and failure modes
+
+### Tests
+
+- [ ] Unit tests: parse valid structured response
+- [ ] Unit tests: reject invalid JSON, unknown operation types, missing fields
+- [ ] Unit tests: each operation type applied correctly (mocked DB)
+- [ ] Integration: mocked LLM returns `create_card` → card appears in DB
+- [ ] Integration: mocked LLM returns `move_card` → order updated in DB
+- [ ] Integration: mocked LLM returns reply only (no operations) → DB unchanged
+- [ ] Integration: invalid operation does not corrupt existing board data
+- [ ] ~80% coverage on AI orchestration modules
+- [ ] Optional live smoke test with real key
+
+### Success criteria
+
+- Backend answers board-aware questions and applies validated granular operations.
+- Chat history is not stored in the database.
+- Malformed AI output fails safely with no partial corruption.
+- Endpoint ready for Part 10 UI consumption.
+
+---
+
+## Part 10: AI chat sidebar UI
+
+Sidebar chat using Part 9; refresh board when operations are applied.
+
+### Checklist
+
+**Layout**
+
+- [ ] Add collapsible or fixed sidebar alongside Kanban (visible only when signed in)
+- [ ] Match TaskPilot colors: navy headings, blue accents, purple send button, yellow highlights
+- [ ] Responsive: sidebar usable on desktop; graceful on smaller widths (collapse or stack)
+
+**Chat behavior**
+
+- [ ] Message list: user and assistant bubbles, scroll to latest
+- [ ] Input + send button; disable while request in flight
+- [ ] Maintain `history` in React state (session memory); clear on logout
+- [ ] On send: `POST /api/chat` with message + history + auth headers
+- [ ] Append assistant `message` to history
+- [ ] If response includes `board`, update board state (or refetch `GET /api/board`)
+
+**Error handling**
+
+- [ ] Missing API key or server error: show message in chat panel, do not break Kanban
+- [ ] Network failure: user can retry
+
+**Docs and tests**
+
+- [ ] Update `frontend/AGENTS.md` with chat components and API usage
+- [ ] Add `data-testid` hooks for chat input, send, messages
+
+### Tests
+
+- [ ] Component tests: render sidebar, send message (mock fetch), display assistant reply
+- [ ] Component tests: board state updates when response includes board
+- [ ] Component tests: error state when API returns 503
+- [ ] Component tests: history clears on logout
+- [ ] Playwright (dev): login → open chat → send message (mock network or test double) → see reply
+- [ ] Playwright (dev): mocked response with board update → Kanban reflects new card (or moved card)
+- [ ] Playwright: regression — login, CRUD, edit, move, logout flows still pass
+- [ ] Playwright (Docker sign-off): chat smoke test against stack (mocked network acceptable)
+- [ ] ~80% coverage on new chat UI units
+
+### Success criteria
+
+- Full MVP: sign-in, persistent Kanban (including edits), AI sidebar that can change the board via granular operations.
+- AI chat history lasts for the browser session only; cleared on logout.
+- Kanban remains usable when OpenRouter key is missing (chat shows error).
+- User can demo end-to-end locally via `scripts/start`.
+- All dev E2E tests pass; Docker sign-off checks pass.
+
+---
+
+## Progress tracking
+
+| Part | Name                         | Status                          |
+|------|------------------------------|---------------------------------|
+| 1    | Plan                         | Complete                        |
+| 2    | Scaffolding                  | Complete                        |
+| 3    | Add in Frontend              | Complete                        |
+| 4    | Fake user sign-in            | Complete — awaiting user approval |
+| 5    | Database modeling            | Not started                     |
+| 6    | Backend Kanban API           | Not started                     |
+| 7    | Frontend + Backend           | Not started                     |
+| 8    | AI connectivity              | Not started                     |
+| 9    | Kanban-aware AI              | Not started                     |
+| 10   | AI chat sidebar UI           | Not started                     |

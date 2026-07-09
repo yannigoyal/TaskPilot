@@ -28,6 +28,7 @@ backend/
 - Path: `DATABASE_PATH` env var, default `backend/data/taskpilot.db` locally, `/app/data/taskpilot.db` in Docker.
 - Schema and seed: see `docs/DATABASE.md`.
 - On startup: create tables if missing; seed only when `users` is empty.
+- Seed matches `frontend/src/lib/kanban.ts` `initialData` (five columns, eight cards, demo user `user`).
 
 ## API
 
@@ -43,14 +44,26 @@ See `docs/API.md`. All board routes require `X-User: user` (demo MVP).
 | DELETE | `/api/cards/{id}` | Delete card |
 | POST | `/api/cards/{id}/move` | Move/reorder card |
 
+All mutations return the full `BoardData` JSON.
+
 ## Run locally (without Docker)
 
-Build frontend static export into `backend/static/` for the UI, then:
+Dev with hot reload (frontend on :3000 proxies `/api` to backend):
 
 ```bash
-cd backend
-uv sync
-uv run uvicorn app.main:app --reload --port 8000
+# Terminal 1 — backend
+cd backend && uv sync && uv run uvicorn app.main:app --host 127.0.0.1 --port 8000
+
+# Terminal 2 — frontend
+cd frontend && npm run dev
+```
+
+Full stack without Next dev server (requires built static files in `backend/static/`):
+
+```bash
+cd frontend && npm run build
+# copy or symlink frontend/out to backend/static, then:
+cd backend && uv run uvicorn app.main:app --port 8000
 ```
 
 ## Tests
@@ -61,7 +74,7 @@ uv sync --group dev
 uv run pytest -v
 ```
 
-Uses an isolated temp database per test via `DATABASE_PATH`.
+Uses an isolated temp database per test via `DATABASE_PATH`. Currently 23 tests.
 
 ## Docker
 
@@ -72,10 +85,24 @@ From repo root:
 ./scripts/stop
 ```
 
-SQLite persists in `./data/taskpilot.db` via the Compose volume.
+SQLite persists in Docker named volume `taskpilot_data` (see `docker-compose.yml`). Reset data: `docker compose down -v`.
 
-Example:
+Optional bind mount for a host-visible DB file:
+
+```yaml
+volumes:
+  - ./data:/app/data
+```
+
+Use bind mount only when Docker Desktop has file-sharing enabled for the project path.
+
+Example API call:
 
 ```bash
 curl -H "X-User: user" http://localhost:8000/api/board
 ```
+
+## Not yet implemented
+
+- OpenRouter client (Part 8)
+- `POST /api/chat` with board operations (Parts 9–10)

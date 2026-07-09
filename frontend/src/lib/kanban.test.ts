@@ -1,4 +1,4 @@
-import { getMoveDestination, moveCard, type Column } from "@/lib/kanban";
+import { getMoveDestination, moveCard, findColumnForItem, type Column } from "@/lib/kanban";
 
 describe("moveCard", () => {
   const baseColumns: Column[] = [
@@ -37,7 +37,29 @@ describe("getMoveDestination", () => {
     });
   });
 
+  it("returns target column when dropping on column droppable", () => {
+    expect(getMoveDestination(columns, "card-1", "col-b")).toEqual({
+      columnId: "col-b",
+      position: 1,
+    });
+  });
+
   it("returns null when there is no move", () => {
     expect(getMoveDestination(columns, "card-1", "card-1")).toBeNull();
+  });
+});
+
+describe("findColumnForItem", () => {
+  const columns = [
+    { id: "col-a", title: "A", cardIds: ["card-1"] },
+    { id: "col-b", title: "B", cardIds: [] },
+  ];
+
+  it("finds column by card id", () => {
+    expect(findColumnForItem(columns, "card-1")).toBe("col-a");
+  });
+
+  it("finds column by column id", () => {
+    expect(findColumnForItem(columns, "col-b")).toBe("col-b");
   });
 });

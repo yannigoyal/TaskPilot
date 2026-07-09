@@ -20,7 +20,9 @@ Incremental build plan for TaskPilot. Complete parts in order. After each part: 
 | **Scripts**            | Docker Compose wrappers only in `scripts/` (`start` / `stop` calling `docker compose`). No separate Mac/PC/Linux native scripts.                                                       |
 | **Secrets**            | Never commit secrets. Add `.env.example` with `OPENROUTER_API_KEY` when AI work begins (Part 8).                                                                                       |
 | **Docker build**       | Multi-stage image: Node stage builds frontend static export; Python stage runs FastAPI + serves `out/`.                                                                                |
-| **SQLite persistence** | DB file on a Docker volume so data survives container restarts; path documented in `docs/DATABASE.md` (Part 5).                                                                        |
+| **SQLite persistence** | DB file on a Docker **named volume** (`taskpilot_data`) so data survives container restarts; path in `docs/DATABASE.md`. Bind mount `./data:/app/data` is optional for host-visible DB files. |
+| **Board API responses** | All Kanban mutations return the full `BoardData` JSON (see `docs/API.md`); frontend replaces local state from the response. |
+| **Drag and drop** | Multi-column `@dnd-kit` setup: `pointerWithin` collision detection, `onDragOver` for cross-column moves, snapshot at drag start for API persistence. See `frontend/AGENTS.md`. |
 
 
 ## Architecture overview
@@ -43,7 +45,28 @@ Static serving notes (Parts 3+):
 
 - Mount API routes before the static catch-all.
 - Serve `index.html` (or equivalent) for unknown non-API paths so client-side routing works on refresh.
-- Next export outputs to `frontend/out/`; copy or mount into the backend image.
+- Next export outputs to `frontend/out/`; copy into the backend image at build time.
+
+## Current project state (after Part 7)
+
+The MVP Kanban is fully wired end-to-end:
+
+- **Auth:** Frontend fake login (`user` / `password`); `X-User` header on all API calls.
+- **Persistence:** SQLite via normalized schema (`docs/DATABASE.md`); Docker named volume `taskpilot_data`.
+- **API:** Full board CRUD under `/api/*` (`docs/API.md`); 23 backend pytest tests.
+- **Frontend:** Loads board from API after login; rename, add, edit, delete, drag-and-drop all persist.
+- **Tests:** Frontend unit tests (28), dev E2E (13), Docker E2E (`npm run test:e2e:docker`); Playwright dev config starts backend + frontend together.
+
+**Not yet implemented:** OpenRouter / AI chat (Parts 8–10).
+
+**Key docs for agents:**
+
+| Document | Purpose |
+| -------- | ------- |
+| `docs/DATABASE.md` | SQLite schema, seed data, DB path |
+| `docs/API.md` | REST contract, `BoardData` shape, errors |
+| `frontend/AGENTS.md` | UI architecture, API client, DnD, tests |
+| `backend/AGENTS.md` | Backend layout, run/test commands |
 
 ## Test standards (all parts)
 
@@ -255,7 +278,7 @@ Propose and document normalized SQLite schema and REST API contract. Get user si
 - [x] `columns`: id, board_id (FK), title, position (integer order) — fixed count at seed time, renamable
 - [x] `cards`: id, column_id (FK), title, details, position (integer order within column)
 - [x] Document create-if-missing behavior and default DB path (e.g. `data/taskpilot.db`)
-- [x] Document Docker volume mount (e.g. `./data:/app/data`) so SQLite survives restarts
+- [x] Document Docker volume mount — **implemented as named volume** `taskpilot_data:/app/data` in `docker-compose.yml` (bind mount `./data:/app/data` documented as optional alternative; named volume avoids Docker Desktop file-sharing issues on external drives)
 - [x] Seed plan: demo user `user`, one board, five columns matching frontend names, eight seed cards matching `frontend/src/lib/kanban.ts` `initialData`
 
 **API contract (`docs/API.md`)**
@@ -380,9 +403,17 @@ Wire the UI to the API. Persistent board. Add card editing. Send `X-User` on all
 - [x] Logout clears session; re-login shows persisted board from SQLite
 - [x] Unauthenticated users cannot trigger API calls
 
+**Drag and drop (Part 7 fix)**
+
+- [x] `pointerWithin` collision detection (fallback: `closestCorners`) for reliable column targeting in a 5-column grid
+- [x] `onDragOver` moves cards between columns during drag (multi-container `@dnd-kit` pattern)
+- [x] Snapshot column state at drag start; compute API destination from that snapshot on drop
+- [x] `lastOverId` fallback when `over` is null at drag end but was valid during drag
+- [x] Flex drop spacer below cards in each column for reliable drops below existing cards
+
 **Docs**
 
-- [x] Update `frontend/AGENTS.md` with API client, data flow, and edit UI
+- [x] Update `frontend/AGENTS.md` with API client, data flow, edit UI, and DnD behavior
 
 ### Tests
 
@@ -552,16 +583,17 @@ Sidebar chat using Part 9; refresh board when operations are applied.
 ## Progress tracking
 
 
-| Part | Name               | Status                            |
-| ---- | ------------------ | --------------------------------- |
-| 1    | Plan               | Complete                          |
-| 2    | Scaffolding        | Complete                          |
-| 3    | Add in Frontend    | Complete                          |
-| 4    | Fake user sign-in  | Complete                          |
-| 5    | Database modeling  | Complete                          |
-| 7    | Frontend + Backend | Not started                       |
-| 8    | AI connectivity    | Not started                       |
-| 9    | Kanban-aware AI    | Not started                       |
-| 10   | AI chat sidebar UI | Not started                       |
+| Part | Name               | Status     |
+| ---- | ------------------ | ---------- |
+| 1    | Plan               | Complete   |
+| 2    | Scaffolding        | Complete   |
+| 3    | Add in Frontend    | Complete   |
+| 4    | Fake user sign-in  | Complete   |
+| 5    | Database modeling  | Complete   |
+| 6    | Backend Kanban API | Complete   |
+| 7    | Frontend + Backend | Complete   |
+| 8    | AI connectivity    | Not started |
+| 9    | Kanban-aware AI    | Not started |
+| 10   | AI chat sidebar UI | Not started |
 
-
+**Next up:** Part 8 — OpenRouter connectivity (`POST /api/ai/ping`).

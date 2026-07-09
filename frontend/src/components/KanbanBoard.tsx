@@ -5,16 +5,33 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
+  pointerWithin,
+  closestCorners,
   useSensor,
   useSensors,
-  closestCorners,
+  type CollisionDetection,
   type DragEndEvent,
+  type DragOverEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { KanbanColumn } from "@/components/KanbanColumn";
 import { KanbanCardPreview } from "@/components/KanbanCardPreview";
 import * as api from "@/lib/api";
-import { getMoveDestination, moveCard, type BoardData } from "@/lib/kanban";
+import {
+  findColumnForItem,
+  getMoveDestination,
+  moveCard,
+  type BoardData,
+  type Column,
+} from "@/lib/kanban";
+
+const collisionDetection: CollisionDetection = (args) => {
+  const pointerCollisions = pointerWithin(args);
+  if (pointerCollisions.length > 0) {
+    return pointerCollisions;
+  }
+  return closestCorners(args);
+};
 
 type KanbanBoardProps = {
   onLogout?: () => void;
@@ -26,6 +43,8 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
   const [error, setError] = useState<string | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const persistedColumnTitles = useRef<Record<string, string>>({});
+  const columnsAtDragStart = useRef<Column[] | null>(null);
+  const lastOverId = useRef<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -70,34 +89,65 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
   const cardsById = useMemo(() => board?.cards ?? {}, [board?.cards]);
 
   const handleDragStart = (event: DragStartEvent) => {
+    columnsAtDragStart.current = board?.columns ?? null;
+    lastOverId.current = null;
     setActiveCardId(event.active.id as string);
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    lastOverId.current = over.id as string;
+
+    setBoard((prev) => {
+      if (!prev) {
+        return prev;
+      }
+
+      const activeColumnId = findColumnForItem(prev.columns, active.id as string);
+      const overColumnId = findColumnForItem(prev.columns, over.id as string);
+      if (!activeColumnId || !overColumnId || activeColumnId === overColumnId) {
+        return prev;
+      }
+
+      const nextColumns = moveCard(prev.columns, active.id as string, over.id as string);
+      if (nextColumns === prev.columns) {
+        return prev;
+      }
+
+      return { ...prev, columns: nextColumns };
+    });
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveCardId(null);
 
-    if (!board || !over || active.id === over.id) {
+    const startColumns = columnsAtDragStart.current;
+    columnsAtDragStart.current = null;
+    const overId = (over?.id ?? lastOverId.current) as string | null;
+    lastOverId.current = null;
+
+    if (!startColumns || !overId || active.id === overId) {
       return;
     }
 
     const destination = getMoveDestination(
-      board.columns,
+      startColumns,
       active.id as string,
-      over.id as string
+      overId
     );
+
     if (!destination) {
+      setBoard((prev) => (prev ? { ...prev, columns: startColumns } : prev));
       return;
     }
 
-    setBoard((prev) =>
-      prev
-        ? {
-            ...prev,
-            columns: moveCard(prev.columns, active.id as string, over.id as string),
-          }
-        : prev
-    );
+    const finalColumns = moveCard(startColumns, active.id as string, overId);
+    setBoard((prev) => (prev ? { ...prev, columns: finalColumns } : prev));
 
     await runMutation(() =>
       api.moveCard(active.id as string, destination.columnId, destination.position)
@@ -241,8 +291,9 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
 
         <DndContext
           sensors={sensors}
-          collisionDetection={closestCorners}
+          collisionDetection={collisionDetection}
           onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
           <section className="grid gap-6 lg:grid-cols-5">

@@ -63,10 +63,12 @@ export const KanbanColumn = ({
             />
           ))}
         </SortableContext>
-        {cards.length === 0 && (
+        {cards.length === 0 ? (
           <div className="flex flex-1 items-center justify-center rounded-2xl border border-dashed border-[var(--stroke)] px-3 py-6 text-center text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gray-text)]">
             Drop a card here
           </div>
+        ) : (
+          <div className="min-h-[80px] flex-1" aria-hidden="true" />
         )}
       </div>
       <NewCardForm

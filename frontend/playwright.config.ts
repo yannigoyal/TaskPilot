@@ -15,10 +15,10 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: `sh -c 'rm -f /tmp/taskpilot-e2e-dev.db && DATABASE_PATH=/tmp/taskpilot-e2e-dev.db uv run uvicorn app.main:app --hostname 127.0.0.1 --port 8000'`,
+      command: `sh -c 'rm -f /tmp/taskpilot-e2e-dev.db && DATABASE_PATH=/tmp/taskpilot-e2e-dev.db uv run uvicorn app.main:app --host 127.0.0.1 --port 8000'`,
       cwd: backendDir,
       url: "http://127.0.0.1:8000/api/health",
-      reuseExistingServer: true,
+      reuseExistingServer: false,
       timeout: 120_000,
     },
     {

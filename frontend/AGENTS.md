@@ -47,7 +47,14 @@ LoginGate (client — auth gate)
 
 **State ownership:** `KanbanBoard` holds `board: BoardData | null` loaded from `GET /api/board`. All mutations call `src/lib/api.ts` and replace state with the server-returned `BoardData`. Loading and error states use `data-testid="board-loading"` and `data-testid="board-error"`.
 
-**Drag and drop:** Optimistic local reorder on `dragEnd`, then `api.moveCard` with computed `column_id` and `position` from `getMoveDestination()` in `kanban.ts`. On API failure, board refetches.
+**Drag and drop:** Multi-column `@dnd-kit` setup with one `SortableContext` per column:
+
+- **Collision detection:** `pointerWithin` first, then `closestCorners` — avoids wrong drop targets in the 5-column grid.
+- **`onDragOver`:** Moves cards between columns during drag (required for multi-container sortable).
+- **Drag start snapshot:** Column state saved in a ref at drag start; API destination computed from that snapshot on drop (not from optimistic mid-drag state).
+- **`lastOverId` fallback:** Used when `over` is null at drag end but was valid during drag.
+- **Drop zone:** Each column has a flex spacer below cards so drops below existing cards hit the droppable area.
+- On drop: optimistic update from snapshot + `api.moveCard`; server response replaces state. On API failure, board refetches.
 
 **Column rename:** Controlled `<input>` updates local state on change; `onBlur` calls `PATCH /api/columns/{id}` when title differs from last persisted value (tracked in a ref).
 
@@ -67,7 +74,7 @@ type BoardData = { columns: Column[]; cards: Record<string, Card> }
 
 - **Normalized shape:** columns hold ordered `cardIds`; card objects live in a flat `cards` map.
 - **Seed data:** `initialData` remains for unit tests only; runtime board comes from the API.
-- **Pure functions:** `moveCard` (local DnD preview), `getMoveDestination` (API move target), `createId` (legacy; server assigns ids now).
+- **Pure functions:** `moveCard` (local DnD layout), `getMoveDestination` (API move target from column snapshot + drop target), `findColumnForItem` (resolve card/column id to column id). `createId` is legacy (tests only; server assigns ids).
 
 ### API client (`src/lib/api.ts`)
 
@@ -199,12 +206,12 @@ Current tests:
 ### E2E tests (Playwright)
 
 - **Location:** `tests/*.spec.ts`.
-- **Dev config:** `playwright.config.ts` — starts uvicorn on :8000 and `npm run dev` on :3000; `workers: 1` for shared DB.
-- **Docker config:** `playwright.docker.config.ts` — base URL `http://127.0.0.1:8000`.
+- **Dev config:** `playwright.config.ts` — starts uvicorn on :8000 (fresh SQLite at `/tmp/taskpilot-e2e-dev.db` each run) and `npm run dev` on :3000; `workers: 1` for shared DB.
+- **Docker config:** `playwright.docker.config.ts` — base URL `http://127.0.0.1:8000`; run `./scripts/start` first.
 
-Current tests:
+Current tests (13 dev / 13 docker):
 - `auth.spec.ts` — login gate, sign-in, logout
-- `kanban.spec.ts` — load board, add card, move card
+- `kanban.spec.ts` — load board, add card, cross-column drag (including drop below existing cards)
 - `persistence.spec.ts` — rename, add, edit, move, delete survive reload; logout/login preserves state
 
 ## Constraints for agents
@@ -218,4 +225,6 @@ Current tests:
 
 ## Future integration notes
 
-**Part 10:** Add chat sidebar component; call `POST /api/chat`; keep history in React state; refresh board from response or refetch.
+**Part 8:** Backend OpenRouter ping endpoint; no frontend changes.
+
+**Part 9–10:** Chat sidebar; `POST /api/chat`; keep history in React state; refresh board from response or refetch.

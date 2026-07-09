@@ -81,6 +81,9 @@ const findColumnId = (columns: Column[], id: string) => {
   return columns.find((column) => column.cardIds.includes(id))?.id;
 };
 
+export const findColumnForItem = (columns: Column[], id: string) =>
+  findColumnId(columns, id);
+
 export const moveCard = (
   columns: Column[],
   activeId: string,

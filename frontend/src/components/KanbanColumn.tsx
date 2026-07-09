@@ -9,15 +9,19 @@ type KanbanColumnProps = {
   column: Column;
   cards: Card[];
   onRename: (columnId: string, title: string) => void;
-  onAddCard: (columnId: string, title: string, details: string) => void;
-  onDeleteCard: (columnId: string, cardId: string) => void;
+  onRenameCommit: (columnId: string, title: string) => void | Promise<void>;
+  onAddCard: (columnId: string, title: string, details: string) => void | Promise<void>;
+  onEditCard: (cardId: string, title: string, details: string) => void | Promise<void>;
+  onDeleteCard: (columnId: string, cardId: string) => void | Promise<void>;
 };
 
 export const KanbanColumn = ({
   column,
   cards,
   onRename,
+  onRenameCommit,
   onAddCard,
+  onEditCard,
   onDeleteCard,
 }: KanbanColumnProps) => {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
@@ -42,6 +46,7 @@ export const KanbanColumn = ({
           <input
             value={column.title}
             onChange={(event) => onRename(column.id, event.target.value)}
+            onBlur={(event) => void onRenameCommit(column.id, event.target.value)}
             className="mt-3 w-full bg-transparent font-display text-lg font-semibold text-[var(--navy-dark)] outline-none"
             aria-label="Column title"
           />
@@ -53,7 +58,8 @@ export const KanbanColumn = ({
             <KanbanCard
               key={card.id}
               card={card}
-              onDelete={(cardId) => onDeleteCard(column.id, cardId)}
+              onEdit={onEditCard}
+              onDelete={(cardId) => void onDeleteCard(column.id, cardId)}
             />
           ))}
         </SortableContext>
@@ -64,7 +70,7 @@ export const KanbanColumn = ({
         )}
       </div>
       <NewCardForm
-        onAdd={(title, details) => onAddCard(column.id, title, details)}
+        onAdd={(title, details) => void onAddCard(column.id, title, details)}
       />
     </section>
   );

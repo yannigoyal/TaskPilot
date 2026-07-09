@@ -1,46 +1,122 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { KanbanBoard } from "@/components/KanbanBoard";
+import { initialData } from "@/lib/kanban";
+
+vi.mock("@/lib/api", () => ({
+  fetchBoard: vi.fn(),
+  renameColumn: vi.fn(),
+  createCard: vi.fn(),
+  updateCard: vi.fn(),
+  deleteCard: vi.fn(),
+  moveCard: vi.fn(),
+}));
+
+import * as api from "@/lib/api";
 
 const getFirstColumn = () => screen.getAllByTestId(/column-/i)[0];
 
 describe("KanbanBoard", () => {
-  it("renders five columns", () => {
-    render(<KanbanBoard />);
-    expect(screen.getAllByTestId(/column-/i)).toHaveLength(5);
+  beforeEach(() => {
+    vi.mocked(api.fetchBoard).mockResolvedValue(structuredClone(initialData));
+    vi.mocked(api.renameColumn).mockImplementation(async (_id, title) => ({
+      ...structuredClone(initialData),
+      columns: initialData.columns.map((column) =>
+        column.id === "col-backlog" ? { ...column, title } : column
+      ),
+    }));
+    vi.mocked(api.createCard).mockImplementation(async (columnId, title, details) => {
+      const board = structuredClone(initialData);
+      const id = "card-new";
+      board.cards[id] = { id, title, details };
+      const column = board.columns.find((item) => item.id === columnId);
+      if (column) {
+        column.cardIds.push(id);
+      }
+      return board;
+    });
+    vi.mocked(api.deleteCard).mockImplementation(async (cardId) => {
+      const board = structuredClone(initialData);
+      delete board.cards[cardId];
+      board.columns = board.columns.map((column) => ({
+        ...column,
+        cardIds: column.cardIds.filter((id) => id !== cardId),
+      }));
+      return board;
+    });
+    vi.mocked(api.updateCard).mockImplementation(async (cardId, title, details) => {
+      const board = structuredClone(initialData);
+      board.cards[cardId] = { id: cardId, title, details };
+      return board;
+    });
+    vi.mocked(api.moveCard).mockResolvedValue(structuredClone(initialData));
   });
 
-  it("renames a column", async () => {
+  it("renders five columns after loading", async () => {
     render(<KanbanBoard />);
+    expect(screen.getByTestId("board-loading")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getAllByTestId(/column-/i)).toHaveLength(5);
+    });
+  });
+
+  it("renames a column on blur", async () => {
+    render(<KanbanBoard />);
+    await waitFor(() => expect(screen.getAllByTestId(/column-/i)).toHaveLength(5));
+
     const column = getFirstColumn();
     const input = within(column).getByLabelText("Column title");
     await userEvent.clear(input);
     await userEvent.type(input, "New Name");
-    expect(input).toHaveValue("New Name");
+    await userEvent.tab();
+
+    await waitFor(() => {
+      expect(api.renameColumn).toHaveBeenCalledWith("col-backlog", "New Name");
+    });
   });
 
   it("adds and removes a card", async () => {
     render(<KanbanBoard />);
+    await waitFor(() => expect(screen.getAllByTestId(/column-/i)).toHaveLength(5));
+
     const column = getFirstColumn();
-    const addButton = within(column).getByRole("button", {
-      name: /add a card/i,
-    });
-    await userEvent.click(addButton);
-
-    const titleInput = within(column).getByPlaceholderText(/card title/i);
-    await userEvent.type(titleInput, "New card");
-    const detailsInput = within(column).getByPlaceholderText(/details/i);
-    await userEvent.type(detailsInput, "Notes");
-
+    await userEvent.click(within(column).getByRole("button", { name: /add a card/i }));
+    await userEvent.type(within(column).getByPlaceholderText(/card title/i), "New card");
+    await userEvent.type(within(column).getByPlaceholderText(/details/i), "Notes");
     await userEvent.click(within(column).getByRole("button", { name: /add card/i }));
 
-    expect(within(column).getByText("New card")).toBeInTheDocument();
-
-    const deleteButton = within(column).getByRole("button", {
-      name: /delete new card/i,
+    await waitFor(() => {
+      expect(api.createCard).toHaveBeenCalled();
+      expect(within(column).getByText("New card")).toBeInTheDocument();
     });
-    await userEvent.click(deleteButton);
 
-    expect(within(column).queryByText("New card")).not.toBeInTheDocument();
+    await userEvent.click(
+      within(column).getByRole("button", { name: /delete new card/i })
+    );
+
+    await waitFor(() => {
+      expect(api.deleteCard).toHaveBeenCalled();
+    });
+  });
+
+  it("edits a card", async () => {
+    render(<KanbanBoard />);
+    await waitFor(() => expect(screen.getByTestId("card-card-1")).toBeInTheDocument());
+
+    const card = screen.getByTestId("card-card-1");
+    await userEvent.click(within(card).getByRole("button", { name: /edit define mvp scope/i }));
+    await userEvent.clear(within(card).getByLabelText("Card title"));
+    await userEvent.type(within(card).getByLabelText("Card title"), "Edited title");
+    await userEvent.click(within(card).getByRole("button", { name: /^save$/i }));
+
+    await waitFor(() => {
+      expect(api.updateCard).toHaveBeenCalledWith(
+        "card-1",
+        "Edited title",
+        initialData.cards["card-1"].details
+      );
+      expect(card).toHaveTextContent("Edited title");
+    });
   });
 });

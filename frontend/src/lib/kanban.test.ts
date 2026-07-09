@@ -1,4 +1,4 @@
-import { moveCard, type Column } from "@/lib/kanban";
+import { getMoveDestination, moveCard, type Column } from "@/lib/kanban";
 
 describe("moveCard", () => {
   const baseColumns: Column[] = [
@@ -21,5 +21,23 @@ describe("moveCard", () => {
     const result = moveCard(baseColumns, "card-1", "col-b");
     expect(result[0].cardIds).toEqual(["card-2"]);
     expect(result[1].cardIds).toEqual(["card-3", "card-1"]);
+  });
+});
+
+describe("getMoveDestination", () => {
+  const columns = [
+    { id: "col-a", title: "A", cardIds: ["card-1", "card-2"] },
+    { id: "col-b", title: "B", cardIds: ["card-3"] },
+  ];
+
+  it("returns target column and position for cross-column move", () => {
+    expect(getMoveDestination(columns, "card-1", "card-3")).toEqual({
+      columnId: "col-b",
+      position: 0,
+    });
+  });
+
+  it("returns null when there is no move", () => {
+    expect(getMoveDestination(columns, "card-1", "card-1")).toBeNull();
   });
 });

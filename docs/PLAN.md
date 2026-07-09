@@ -355,50 +355,50 @@ Wire the UI to the API. Persistent board. Add card editing. Send `X-User` on all
 
 **API client**
 
-- Add `src/lib/api.ts` (or similar): typed fetch wrappers for each `docs/API.md` endpoint
-- Attach `getAuthHeaders()` from `auth.ts` to every request
-- Map API errors to simple user-visible messages (minimal)
+- [x] Add `src/lib/api.ts` (or similar): typed fetch wrappers for each `docs/API.md` endpoint
+- [x] Attach `getAuthHeaders()` from `auth.ts` to every request
+- [x] Map API errors to simple user-visible messages (minimal)
 
 **Board data flow**
 
-- Replace `useState(initialData)` with load-from-API after login (loading + error states)
-- On column rename: debounce or blur-triggered `PATCH` (keep UI responsive)
-- On drag end: `POST .../move` with target column and position
-- On add card: `POST /api/cards`; use server-returned id in local state
-- On delete card: `DELETE /api/cards/{id}`
-- Refetch or merge server response after mutations (keep simple; prefer refetch on error)
+- [x] Replace `useState(initialData)` with load-from-API after login (loading + error states)
+- [x] On column rename: debounce or blur-triggered `PATCH` (keep UI responsive)
+- [x] On drag end: `POST .../move` with target column and position
+- [x] On add card: `POST /api/cards`; use server-returned id in local state
+- [x] On delete card: `DELETE /api/cards/{id}`
+- [x] Refetch or merge server response after mutations (keep simple; prefer refetch on error)
 
 **Card editing (new UI)**
 
-- Add edit affordance on `KanbanCard` (e.g. click title or Edit button)
-- Inline form or modal for title + details; save via `PATCH /api/cards/{id}`
-- Cancel discards local edits
+- [x] Add edit affordance on `KanbanCard` (e.g. click title or Edit button)
+- [x] Inline form or modal for title + details; save via `PATCH /api/cards/{id}`
+- [x] Cancel discards local edits
 
 **Auth integration**
 
-- Login still uses fake credentials; successful login enables API-backed board
-- Logout clears session; re-login shows persisted board from SQLite
-- Unauthenticated users cannot trigger API calls
+- [x] Login still uses fake credentials; successful login enables API-backed board
+- [x] Logout clears session; re-login shows persisted board from SQLite
+- [x] Unauthenticated users cannot trigger API calls
 
 **Docs**
 
-- Update `frontend/AGENTS.md` with API client, data flow, and edit UI
+- [x] Update `frontend/AGENTS.md` with API client, data flow, and edit UI
 
 ### Tests
 
-- Unit tests for API client (mock `fetch`) and response parsing
-- Unit tests for card edit form validation/submit logic
-- Component test: edit card updates displayed title/details
-- Integration (backend pytest or manual): full round-trip matches frontend actions
-- Playwright (dev): login → rename column → reload → name persisted
-- Playwright (dev): login → add card → reload → card persisted
-- Playwright (dev): login → move card → reload → position persisted
-- Playwright (dev): login → edit card → reload → edits persisted
-- Playwright (dev): login → delete card → reload → card gone
-- Playwright (dev): logout → login → board state from DB still correct
-- Playwright (Docker sign-off): at least one persistence smoke test against stack URL
-- ~80% coverage on new frontend integration units
-- All prior Kanban + auth E2E tests pass
+- [x] Unit tests for API client (mock `fetch`) and response parsing
+- [x] Unit tests for card edit form validation/submit logic
+- [x] Component test: edit card updates displayed title/details
+- [x] Integration (backend pytest or manual): full round-trip matches frontend actions
+- [x] Playwright (dev): login → rename column → reload → name persisted
+- [x] Playwright (dev): login → add card → reload → card persisted
+- [x] Playwright (dev): login → move card → reload → position persisted
+- [x] Playwright (dev): login → edit card → reload → edits persisted
+- [x] Playwright (dev): login → delete card → reload → card gone
+- [x] Playwright (dev): logout → login → board state from DB still correct
+- [x] Playwright (Docker sign-off): at least one persistence smoke test against stack URL
+- [x] ~80% coverage on new frontend integration units
+- [x] All prior Kanban + auth E2E tests pass
 
 ### Success criteria
 

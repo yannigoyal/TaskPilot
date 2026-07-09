@@ -180,4 +180,6 @@ node_modules/
 out/
 frontend/test-results/
 frontend/coverage
-backend/static/
+backend/static
+data/
+backend/data//

@@ -3,6 +3,15 @@ services:
     build: .
     ports:
       - "8000:8000"
+    volumes:
+      # Named volume avoids Docker Desktop "File Sharing" issues on external drives.
+      # For a host-visible DB at ./data, replace with: ./data:/app/data
+      - taskpilot_data:/app/data
+    environment:
+      DATABASE_PATH: /app/data/taskpilot.db
     env_file:
       - path: .env
         required: false
+
+volumes:
+  taskpilot_data:

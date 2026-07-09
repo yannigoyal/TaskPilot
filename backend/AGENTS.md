@@ -1,49 +1,67 @@
 # TaskPilot Backend
 
-FastAPI backend for TaskPilot. Serves the static Next.js export at `/` and API routes under `/api/*`.
+FastAPI backend for TaskPilot. Serves the static Next.js export at `/`, health at `/api/health`, and Kanban CRUD at `/api/*`.
 
 ## Layout
 
 ```
 backend/
   app/
-    main.py       FastAPI app — /api/health, SPA static serving
-  static/         Populated at Docker build from frontend/out/ (not committed)
+    main.py          FastAPI app, lifespan, static serving
+    config.py        DATABASE_PATH resolution
+    database.py      SQLite schema, seed, board persistence
+    schemas.py       Pydantic request/response models
+    deps.py          X-User auth dependency
+    routes/
+      board.py       Kanban API routes
   tests/
+    conftest.py      Temp SQLite DB per test
     test_health.py
-  pyproject.toml  uv-managed dependencies
+    test_database.py
+    test_board_api.py
+  data/              Local SQLite file (gitignored) when not using Docker
+  pyproject.toml
 ```
 
-`SPAStaticFiles` serves `static/` at `/` with fallback to `index.html` for unknown non-API paths. API routes are registered before the static mount.
+## Database
+
+- Path: `DATABASE_PATH` env var, default `backend/data/taskpilot.db` locally, `/app/data/taskpilot.db` in Docker.
+- Schema and seed: see `docs/DATABASE.md`.
+- On startup: create tables if missing; seed only when `users` is empty.
+
+## API
+
+See `docs/API.md`. All board routes require `X-User: user` (demo MVP).
+
+| Method | Path | Action |
+|--------|------|--------|
+| GET | `/api/health` | Health check |
+| GET | `/api/board` | Load full board |
+| PATCH | `/api/columns/{id}` | Rename column |
+| POST | `/api/cards` | Create card |
+| PATCH | `/api/cards/{id}` | Update card |
+| DELETE | `/api/cards/{id}` | Delete card |
+| POST | `/api/cards/{id}/move` | Move/reorder card |
 
 ## Run locally (without Docker)
 
-Build the frontend export into `backend/static/` first:
+Build frontend static export into `backend/static/` for the UI, then:
 
 ```bash
-cd frontend && npm run build
-cp -r out ../backend/static
-```
-
-Then from `backend/`:
-
-```bash
+cd backend
 uv sync
 uv run uvicorn app.main:app --reload --port 8000
 ```
 
-Open http://localhost:8000
-
 ## Tests
 
-From `backend/`:
-
 ```bash
+cd backend
 uv sync --group dev
-uv run pytest
+uv run pytest -v
 ```
 
-`test_index_returns_kanban_html` is skipped unless `backend/static/index.html` exists.
+Uses an isolated temp database per test via `DATABASE_PATH`.
 
 ## Docker
 
@@ -54,6 +72,10 @@ From repo root:
 ./scripts/stop
 ```
 
-The Dockerfile builds the frontend in a Node stage and copies `out/` to `backend/static/`.
+SQLite persists in `./data/taskpilot.db` via the Compose volume.
 
-API: `GET /api/health` returns `{"status":"ok"}`.
+Example:
+
+```bash
+curl -H "X-User: user" http://localhost:8000/api/board
+```

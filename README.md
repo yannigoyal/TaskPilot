@@ -4,7 +4,7 @@ TaskPilot is an educational project management application built around a single
 
 ## Current Status
 
-- **Docker stack:** FastAPI serves the static Kanban UI at `/` and `GET /api/health` at `/api/health`.
+- **Backend:** FastAPI + SQLite Kanban API at `/api/*` (requires `X-User: user` header).
 - **Frontend dev:** Next.js Kanban demo also runs standalone with `npm run dev` on port 3000.
 
 Board state is in-memory only (reload resets to seed data).
@@ -26,7 +26,7 @@ Open [http://localhost:8000](http://localhost:8000). Sign in with `user` / `pass
 Verify API:
 
 ```bash
-curl http://localhost:8000/api/health
+curl -H "X-User: user" http://localhost:8000/api/board
 ```
 
 ## Frontend-only development

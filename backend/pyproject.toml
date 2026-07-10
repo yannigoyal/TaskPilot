@@ -4,6 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115",
+    "httpx>=0.28",
     "uvicorn[standard]>=0.34",
 ]
 
@@ -16,3 +17,7 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+addopts = "-m 'not live'"
+markers = [
+    "live: hits real OpenRouter (requires OPENROUTER_API_KEY in repo .env)",
+]

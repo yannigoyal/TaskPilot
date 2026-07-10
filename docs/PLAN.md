@@ -23,6 +23,11 @@ Incremental build plan for TaskPilot. Complete parts in order. After each part: 
 | **SQLite persistence** | DB file on a Docker **named volume** (`taskpilot_data`) so data survives container restarts; path in `docs/DATABASE.md`. Bind mount `./data:/app/data` is optional for host-visible DB files. |
 | **Board API responses** | All Kanban mutations return the full `BoardData` JSON (see `docs/API.md`); frontend replaces local state from the response. |
 | **Drag and drop** | Multi-column `@dnd-kit` setup: `pointerWithin` collision detection, `onDragOver` for cross-column moves, snapshot at drag start for API persistence. See `frontend/AGENTS.md`. |
+| **AI HTTP client (Part 8)** | Use `httpx` for OpenRouter calls (no OpenAI SDK). |
+| **AI ping auth (Part 8)** | `POST /api/ai/ping` requires no `X-User` — connectivity check only. |
+| **Missing OpenRouter key** | Return **503** when `OPENROUTER_API_KEY` is missing/empty (service unavailable). |
+| **Part 8 live verification** | Sign-off includes a real OpenRouter call (not mocked-only); confirm a model reply. |
+| **Part 7 approval** | Part 7 approved; proceed to Part 8. |
 
 
 ## Architecture overview
@@ -47,17 +52,18 @@ Static serving notes (Parts 3+):
 - Serve `index.html` (or equivalent) for unknown non-API paths so client-side routing works on refresh.
 - Next export outputs to `frontend/out/`; copy into the backend image at build time.
 
-## Current project state (after Part 7)
+## Current project state (after Part 8)
 
-The MVP Kanban is fully wired end-to-end:
+The MVP Kanban is fully wired end-to-end (Parts 1–7), and OpenRouter connectivity is proven (Part 8):
 
 - **Auth:** Frontend fake login (`user` / `password`); `X-User` header on all API calls.
 - **Persistence:** SQLite via normalized schema (`docs/DATABASE.md`); Docker named volume `taskpilot_data`.
-- **API:** Full board CRUD under `/api/*` (`docs/API.md`); 23 backend pytest tests.
+- **API:** Full board CRUD under `/api/*` (`docs/API.md`); OpenRouter ping at `POST /api/ai/ping` (no auth; 503 if key missing).
+- **AI:** `httpx` client → `openai/gpt-oss-120b` via OpenRouter; live call verified (`{"reply":"4"}`).
 - **Frontend:** Loads board from API after login; rename, add, edit, delete, drag-and-drop all persist.
-- **Tests:** Frontend unit tests (28), dev E2E (13), Docker E2E (`npm run test:e2e:docker`); Playwright dev config starts backend + frontend together.
+- **Tests:** Backend pytest includes mocked AI tests + `@pytest.mark.live` for real OpenRouter.
 
-**Not yet implemented:** OpenRouter / AI chat (Parts 8–10).
+**Not yet implemented:** Kanban-aware chat + sidebar UI (Parts 9–10).
 
 **Key docs for agents:**
 
@@ -447,28 +453,29 @@ Prove OpenRouter works from the backend with a trivial call.
 
 ### Checklist
 
-- Add `.env.example` at repo root with `OPENROUTER_API_KEY=` and brief comment
-- Wire `env_file: .env` in `docker-compose.yml` (gitignored `.env` for local key)
-- Add OpenRouter client module in backend (httpx or official OpenAI-compatible client)
-- Use model `openai/gpt-oss-120b` per root `AGENTS.md`
-- Add `POST /api/ai/ping` (or internal test helper) sending a trivial prompt ("What is 2+2?")
-- Return model reply in JSON; clear 503 or 500 with message when key is missing
-- Do not expose API key to frontend
-- Update `backend/AGENTS.md` with env var requirements
+- [x] Add `.env.example` at repo root with `OPENROUTER_API_KEY=` and brief comment
+- [x] Wire `env_file: .env` in `docker-compose.yml` (gitignored `.env` for local key; already present with `required: false`)
+- [x] Add OpenRouter client module in backend using **httpx** (no OpenAI SDK)
+- [x] Use model `openai/gpt-oss-120b` per root `AGENTS.md`
+- [x] Add `POST /api/ai/ping` (no `X-User` auth) sending a trivial prompt ("What is 2+2?")
+- [x] Return model reply in JSON; **503** with clear message when key is missing
+- [x] Do not expose API key to frontend
+- [x] Update `backend/AGENTS.md` with env var requirements
+- [x] Live verification: real OpenRouter call via ping endpoint confirms a model reply
 
 ### Tests
 
-- Unit test: OpenRouter client with mocked HTTP — parses response text
-- Unit test: missing `OPENROUTER_API_KEY` raises clear error (no silent success)
-- Integration test: with mocked OpenRouter, `POST /api/ai/ping` returns 200
-- Optional live test (marked `@pytest.mark.live` or skipped in CI): real call returns "4" when key present
-- Manual: with real key in `.env`, curl ping endpoint and confirm sensible answer
-- ~80% coverage on new AI client module
+- [x] Unit test: OpenRouter client with mocked HTTP — parses response text
+- [x] Unit test: missing `OPENROUTER_API_KEY` raises clear error (no silent success)
+- [x] Integration test: with mocked OpenRouter, `POST /api/ai/ping` returns 200
+- [x] Live test (marked `@pytest.mark.live`): real call returns a reply containing "4" when key present
+- [x] Manual: with real key in `.env`, curl ping endpoint and confirm sensible answer
+- [x] ~80% coverage on new AI client module
 
 ### Success criteria
 
 - With valid key in `.env`, backend completes a real OpenRouter call.
-- Without key, failure is obvious in API response and logs.
+- Without key, failure is obvious via **503** in API response.
 - No Kanban mutation or chat UI yet.
 - Kanban API and static frontend still work unchanged.
 
@@ -592,8 +599,8 @@ Sidebar chat using Part 9; refresh board when operations are applied.
 | 5    | Database modeling  | Complete   |
 | 6    | Backend Kanban API | Complete   |
 | 7    | Frontend + Backend | Complete   |
-| 8    | AI connectivity    | Not started |
+| 8    | AI connectivity    | Complete   |
 | 9    | Kanban-aware AI    | Not started |
 | 10   | AI chat sidebar UI | Not started |
 
-**Next up:** Part 8 — OpenRouter connectivity (`POST /api/ai/ping`).
+**Next up:** Part 9 — Kanban-aware AI (`POST /api/chat` with structured operations).

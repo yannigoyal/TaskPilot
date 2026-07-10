@@ -12,6 +12,7 @@ vi.mock("@/lib/api", () => ({
   updateCard: vi.fn(),
   deleteCard: vi.fn(),
   moveCard: vi.fn(),
+  sendChat: vi.fn(),
 }));
 
 import * as api from "@/lib/api";
@@ -66,5 +67,35 @@ describe("LoginGate", () => {
 
     expect(screen.getByTestId("login-form")).toBeInTheDocument();
     expect(screen.queryByTestId("column-col-backlog")).not.toBeInTheDocument();
+  });
+
+  it("clears chat history after logout and login again", async () => {
+    vi.mocked(api.sendChat).mockResolvedValue({ message: "Hello from AI" });
+
+    render(<LoginGate />);
+
+    await userEvent.type(screen.getByLabelText("Username"), DEMO_USERNAME);
+    await userEvent.type(screen.getByLabelText("Password"), DEMO_PASSWORD);
+    await userEvent.click(screen.getByRole("button", { name: /sign in/i }));
+
+    await waitFor(() => expect(screen.getByTestId("chat-toggle")).toBeInTheDocument());
+    await userEvent.click(screen.getByTestId("chat-toggle"));
+    await userEvent.type(screen.getByTestId("chat-input"), "Remember this");
+    await userEvent.click(screen.getByTestId("chat-send"));
+    await waitFor(() =>
+      expect(screen.getByTestId("chat-message-assistant")).toHaveTextContent(
+        "Hello from AI"
+      )
+    );
+
+    await userEvent.click(screen.getByTestId("logout-button"));
+    await userEvent.type(screen.getByLabelText("Username"), DEMO_USERNAME);
+    await userEvent.type(screen.getByLabelText("Password"), DEMO_PASSWORD);
+    await userEvent.click(screen.getByRole("button", { name: /sign in/i }));
+
+    await waitFor(() => expect(screen.getByTestId("chat-toggle")).toBeInTheDocument());
+    await userEvent.click(screen.getByTestId("chat-toggle"));
+    expect(screen.queryByTestId("chat-message-user")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("chat-message-assistant")).not.toBeInTheDocument();
   });
 });

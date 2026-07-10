@@ -11,6 +11,7 @@ vi.mock("@/lib/api", () => ({
   updateCard: vi.fn(),
   deleteCard: vi.fn(),
   moveCard: vi.fn(),
+  sendChat: vi.fn(),
 }));
 
 import * as api from "@/lib/api";
@@ -118,5 +119,43 @@ describe("KanbanBoard", () => {
       );
       expect(card).toHaveTextContent("Edited title");
     });
+  });
+
+  it("refetches board before chat after a mutation", async () => {
+    vi.mocked(api.sendChat).mockResolvedValue({ message: "Summary" });
+    vi.mocked(api.renameColumn).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(() => {
+            resolve({
+              ...structuredClone(initialData),
+              columns: initialData.columns.map((column) =>
+                column.id === "col-backlog" ? { ...column, title: "Ideas" } : column
+              ),
+            });
+          }, 80);
+        })
+    );
+
+    render(<KanbanBoard />);
+    await waitFor(() => expect(screen.getAllByTestId(/column-/i)).toHaveLength(5));
+    const fetchCallsBeforeChat = vi.mocked(api.fetchBoard).mock.calls.length;
+
+    const column = getFirstColumn();
+    const input = within(column).getByLabelText("Column title");
+    await userEvent.clear(input);
+    await userEvent.type(input, "Ideas");
+    await userEvent.tab();
+
+    await userEvent.click(screen.getByTestId("chat-toggle"));
+    await userEvent.type(screen.getByTestId("chat-input"), "Summarize");
+    await userEvent.click(screen.getByTestId("chat-send"));
+
+    await waitFor(() => {
+      expect(api.sendChat).toHaveBeenCalledWith("Summarize", []);
+    });
+    expect(vi.mocked(api.fetchBoard).mock.calls.length).toBeGreaterThan(
+      fetchCallsBeforeChat
+    );
   });
 });

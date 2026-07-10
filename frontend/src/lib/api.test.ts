@@ -7,6 +7,7 @@ import {
   fetchBoard,
   moveCard,
   renameColumn,
+  sendChat,
   updateCard,
 } from "@/lib/api";
 
@@ -120,6 +121,32 @@ describe("api client", () => {
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify({ column_id: "col-review", position: 0 }),
+      })
+    );
+  });
+
+  it("sendChat posts message and history", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ message: "Hi" }), { status: 200 })
+    );
+
+    const result = await sendChat("Hello", [
+      { role: "user", content: "Earlier" },
+      { role: "assistant", content: "Reply" },
+    ]);
+
+    expect(result.message).toBe("Hi");
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/chat",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          message: "Hello",
+          history: [
+            { role: "user", content: "Earlier" },
+            { role: "assistant", content: "Reply" },
+          ],
+        }),
       })
     );
   });

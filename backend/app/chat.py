@@ -50,7 +50,8 @@ Allowed operations (use exact field names):
 - {"type":"rename_column","column_id":"<id>","title":"<non-empty>"}
 
 Rules:
-- Only use column and card ids from the current board JSON below.
+- Only use column and card ids from the current board JSON provided with this turn.
+- The current board JSON is the source of truth; ignore any older board descriptions in conversation history.
 - If the user only asks a question, return operations as [] or omit it.
 - Prefer the smallest set of operations that fulfills the request.
 - message must always be a clear natural-language reply.
@@ -71,7 +72,11 @@ class AiValidationError(Exception):
 
 def build_system_prompt(board: BoardData) -> str:
     board_json = board.model_dump_json()
-    return f"{SYSTEM_INSTRUCTIONS}\n\nCurrent board JSON:\n{board_json}"
+    return (
+        f"{SYSTEM_INSTRUCTIONS}\n\n"
+        "Current board JSON (source of truth — ignore older board descriptions "
+        f"in history):\n{board_json}"
+    )
 
 
 def build_openrouter_messages(
@@ -79,11 +84,21 @@ def build_openrouter_messages(
     message: str,
     history: list[ChatMessage],
 ) -> list[dict[str, str]]:
+    """Put the latest board after history so it is not overshadowed by prior turns."""
     messages: list[dict[str, str]] = [
-        {"role": "system", "content": build_system_prompt(board)},
+        {"role": "system", "content": SYSTEM_INSTRUCTIONS},
     ]
     for item in history:
         messages.append({"role": item.role, "content": item.content})
+    messages.append(
+        {
+            "role": "system",
+            "content": (
+                "Current board JSON (source of truth — ignore older board "
+                f"descriptions in history):\n{board.model_dump_json()}"
+            ),
+        }
+    )
     messages.append({"role": "user", "content": message})
     return messages
 

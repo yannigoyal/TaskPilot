@@ -16,6 +16,7 @@ import {
 } from "@dnd-kit/core";
 import { KanbanColumn } from "@/components/KanbanColumn";
 import { KanbanCardPreview } from "@/components/KanbanCardPreview";
+import { ChatSidebar } from "@/components/ChatSidebar";
 import * as api from "@/lib/api";
 import {
   findColumnForItem,
@@ -45,6 +46,7 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
   const persistedColumnTitles = useRef<Record<string, string>>({});
   const columnsAtDragStart = useRef<Column[] | null>(null);
   const lastOverId = useRef<string | null>(null);
+  const pendingMutations = useRef(0);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -52,14 +54,18 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
     })
   );
 
+  const applyBoard = (data: BoardData) => {
+    setBoard(data);
+    persistedColumnTitles.current = Object.fromEntries(
+      data.columns.map((column) => [column.id, column.title])
+    );
+  };
+
   const loadBoard = useCallback(async () => {
     setLoading(true);
     try {
       const data = await api.fetchBoard();
-      setBoard(data);
-      persistedColumnTitles.current = Object.fromEntries(
-        data.columns.map((column) => [column.id, column.title])
-      );
+      applyBoard(data);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load board");
@@ -73,17 +79,27 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
   }, [loadBoard]);
 
   const runMutation = async (mutation: () => Promise<BoardData>) => {
+    pendingMutations.current += 1;
     try {
       const data = await mutation();
-      setBoard(data);
-      persistedColumnTitles.current = Object.fromEntries(
-        data.columns.map((column) => [column.id, column.title])
-      );
+      applyBoard(data);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Request failed");
       await loadBoard();
+    } finally {
+      pendingMutations.current -= 1;
     }
+  };
+
+  /** Wait for in-flight board writes, then reload persisted board for chat. */
+  const ensurePersistedBoard = async () => {
+    while (pendingMutations.current > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    }
+    const data = await api.fetchBoard();
+    applyBoard(data);
+    setError(null);
   };
 
   const cardsById = useMemo(() => board?.cards ?? {}, [board?.cards]);
@@ -147,11 +163,23 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
     }
 
     const finalColumns = moveCard(startColumns, active.id as string, overId);
-    setBoard((prev) => (prev ? { ...prev, columns: finalColumns } : prev));
 
-    await runMutation(() =>
-      api.moveCard(active.id as string, destination.columnId, destination.position)
-    );
+    pendingMutations.current += 1;
+    try {
+      setBoard((prev) => (prev ? { ...prev, columns: finalColumns } : prev));
+      const data = await api.moveCard(
+        active.id as string,
+        destination.columnId,
+        destination.position
+      );
+      applyBoard(data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Request failed");
+      await loadBoard();
+    } finally {
+      pendingMutations.current -= 1;
+    }
   };
 
   const handleRenameColumn = (columnId: string, title: string) => {
@@ -196,6 +224,11 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
   const handleDeleteCard = async (columnId: string, cardId: string) => {
     void columnId;
     await runMutation(() => api.deleteCard(cardId));
+  };
+
+  const handleChatBoardUpdate = (data: BoardData) => {
+    applyBoard(data);
+    setError(null);
   };
 
   const activeCard = activeCardId ? cardsById[activeCardId] : null;
@@ -319,6 +352,11 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
           </DragOverlay>
         </DndContext>
       </main>
+
+      <ChatSidebar
+        onBoardUpdate={handleChatBoardUpdate}
+        onBeforeSend={ensurePersistedBoard}
+      />
     </div>
   );
 };

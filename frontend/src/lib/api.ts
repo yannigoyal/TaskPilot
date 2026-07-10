@@ -8,6 +8,16 @@ export class ApiError extends Error {
   }
 }
 
+export type ChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
+
+export type ChatResponse = {
+  message: string;
+  board?: BoardData;
+};
+
 async function parseError(response: Response): Promise<string> {
   try {
     const body = await response.json();
@@ -89,5 +99,15 @@ export async function moveCard(
   return request<BoardData>(`/api/cards/${cardId}/move`, {
     method: "POST",
     body: JSON.stringify({ column_id: columnId, position }),
+  });
+}
+
+export async function sendChat(
+  message: string,
+  history: ChatMessage[]
+): Promise<ChatResponse> {
+  return request<ChatResponse>("/api/chat", {
+    method: "POST",
+    body: JSON.stringify({ message, history }),
   });
 }

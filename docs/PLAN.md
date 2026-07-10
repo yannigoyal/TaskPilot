@@ -30,6 +30,7 @@ Incremental build plan for TaskPilot. Complete parts in order. After each part: 
 | **Part 7 approval** | Part 7 approved; proceed to Part 8. |
 | **AI operation apply (Part 9)** | All-or-nothing: validate every operation against the board (simulating sequential state) before any write; apply in one SQLite transaction and roll back on failure. Unknown IDs fail the whole request. |
 | **Part 8 approval** | Part 8 approved; proceed to Part 9. |
+| **Part 9 approval** | Part 9 approved; proceed to Part 10. |
 
 
 ## Architecture overview
@@ -54,16 +55,15 @@ Static serving notes (Parts 3+):
 - Serve `index.html` (or equivalent) for unknown non-API paths so client-side routing works on refresh.
 - Next export outputs to `frontend/out/`; copy into the backend image at build time.
 
-## Current project state (after Part 9)
+## Current project state (after Part 10 — MVP complete)
 
-Kanban MVP + OpenRouter chat backend are in place:
+Full TaskPilot MVP:
 
-- **Auth / board:** Unchanged from Part 7 (persistent CRUD via `/api/*`).
-- **AI ping:** `POST /api/ai/ping` (Part 8).
-- **AI chat:** `POST /api/chat` loads board context, calls OpenRouter, parses structured `{ message, operations }`, validates all ops, applies all-or-nothing via existing persistence (`docs/AI.md`).
-- **Tests:** Backend pytest covers parse/validate/chat (reply-only + mutations + corruption safety); live smoke confirmed reply + create_card.
+- **Auth / board:** Persistent Kanban via `/api/*` (Parts 1–7).
+- **AI backend:** OpenRouter ping + Kanban-aware `POST /api/chat` (Parts 8–9).
+- **AI UI:** Collapsible chat sidebar; session history; board updates applied immediately from chat responses.
 
-**Not yet implemented:** AI chat sidebar UI (Part 10).
+**Next:** User approval / polish only — no further plan parts.
 
 **Key docs for agents:**
 
@@ -542,40 +542,40 @@ Sidebar chat using Part 9; refresh board when operations are applied.
 
 **Layout**
 
-- Add collapsible or fixed sidebar alongside Kanban (visible only when signed in)
-- Match TaskPilot colors: navy headings, blue accents, purple send button, yellow highlights
-- Responsive: sidebar usable on desktop; graceful on smaller widths (collapse or stack)
+- [x] Add collapsible sidebar alongside Kanban (visible only when signed in)
+- [x] Match TaskPilot colors: navy headings, blue accents, purple send button, yellow highlights
+- [x] Responsive: sidebar beside board on large screens; stacks / toggle on smaller widths
 
 **Chat behavior**
 
-- Message list: user and assistant bubbles, scroll to latest
-- Input + send button; disable while request in flight
-- Maintain `history` in React state (session memory); clear on logout
-- On send: `POST /api/chat` with message + history + auth headers
-- Append assistant `message` to history
-- If response includes `board`, update board state (or refetch `GET /api/board`)
+- [x] Message list: user and assistant bubbles, scroll to latest
+- [x] Input + send button; disable while request in flight
+- [x] Maintain `history` in React state (session memory); clear on logout
+- [x] On send: `POST /api/chat` with message + history + auth headers
+- [x] Append assistant `message` to history
+- [x] If response includes `board`, update board state immediately
 
 **Error handling**
 
-- Missing API key or server error: show message in chat panel, do not break Kanban
-- Network failure: user can retry
+- [x] Missing API key or server error: show message in chat panel, do not break Kanban
+- [x] Network failure: user can retry
 
 **Docs and tests**
 
-- Update `frontend/AGENTS.md` with chat components and API usage
-- Add `data-testid` hooks for chat input, send, messages
+- [x] Update `frontend/AGENTS.md` with chat components and API usage
+- [x] Add `data-testid` hooks for chat input, send, messages
 
 ### Tests
 
-- Component tests: render sidebar, send message (mock fetch), display assistant reply
-- Component tests: board state updates when response includes board
-- Component tests: error state when API returns 503
-- Component tests: history clears on logout
-- Playwright (dev): login → open chat → send message (mock network or test double) → see reply
-- Playwright (dev): mocked response with board update → Kanban reflects new card (or moved card)
-- Playwright: regression — login, CRUD, edit, move, logout flows still pass
-- Playwright (Docker sign-off): chat smoke test against stack (mocked network acceptable)
-- ~80% coverage on new chat UI units
+- [x] Component tests: render sidebar, send message (mock fetch), display assistant reply
+- [x] Component tests: board state updates when response includes board
+- [x] Component tests: error state when API returns 503
+- [x] Component tests: history clears on logout
+- [x] Playwright (dev): login → open chat → send message (mocked network) → see reply
+- [x] Playwright (dev): mocked response with board update → Kanban reflects new card
+- [x] Playwright: regression — login, CRUD, edit, move, logout flows still pass
+- [x] Playwright (Docker sign-off): chat smoke via same `chat.spec.ts` against stack
+- [x] ~80% coverage on new chat UI units
 
 ### Success criteria
 
@@ -601,6 +601,6 @@ Sidebar chat using Part 9; refresh board when operations are applied.
 | 7    | Frontend + Backend | Complete   |
 | 8    | AI connectivity    | Complete   |
 | 9    | Kanban-aware AI    | Complete   |
-| 10   | AI chat sidebar UI | Not started |
+| 10   | AI chat sidebar UI | Complete   |
 
-**Next up:** Part 10 — AI chat sidebar UI.
+**MVP complete.** Awaiting user review of Part 10.

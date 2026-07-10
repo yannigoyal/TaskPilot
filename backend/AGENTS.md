@@ -115,4 +115,4 @@ curl -X POST -H "X-User: user" -H "Content-Type: application/json" \
 
 ## Not yet implemented
 
-- AI chat sidebar UI (Part 10)
+- (none for MVP — Part 10 chat sidebar is implemented in the frontend)

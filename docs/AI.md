@@ -74,9 +74,12 @@ IDs must refer to columns/cards on the authenticated user's board. Titles must b
 
 ## Prompt strategy
 
-1. System message: role instructions, JSON schema for the response, and the current `BoardData` JSON.
+1. System message: role instructions and JSON schema for the response.
 2. History messages (user/assistant) from the request.
-3. Final user message: the new `message`.
+3. A second system message with the **current** `BoardData` JSON (loaded from SQLite at request time), placed after history so prior turns cannot overshadow it.
+4. Final user message: the new `message`.
+
+The board JSON is always reloaded from the database for each `/api/chat` call. The frontend waits for in-flight board mutations and refetches before sending chat so the UI and AI see the same persisted state.
 
 Model: `openai/gpt-oss-120b` via OpenRouter (`httpx`).
 

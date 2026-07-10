@@ -11,6 +11,7 @@ from app.config import get_database_path
 from app.database import connect, init_db
 from app.routes.ai import router as ai_router
 from app.routes.board import router as board_router
+from app.routes.chat import router as chat_router
 
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 
@@ -53,6 +54,7 @@ def health() -> dict[str, str]:
 
 app.include_router(board_router)
 app.include_router(ai_router)
+app.include_router(chat_router)
 
 
 if STATIC_DIR.is_dir():

@@ -9,12 +9,13 @@ TaskPilot is a project management web app. Key features:
 - The cards on the Kanban board can be moved with drag and drop, and edited
 - There is an AI chat feature in a sidebar; the AI is able to create / edit / move one or more cards
 
-## Current state (Parts 1–8 complete)
+## Current state (Parts 1–9 complete)
 
 - **Stack:** Next.js static export + FastAPI + SQLite in a single Docker container
 - **Auth:** Fake login (`user` / `password`); API calls use `X-User: user` header
 - **Board:** Persistent in SQLite; all CRUD via `/api/*` (see `docs/API.md`)
-- **AI:** OpenRouter connectivity proven via `POST /api/ai/ping` (Parts 9–10: chat + board ops)
+- **AI:** OpenRouter ping + Kanban-aware `POST /api/chat` with validated granular ops (see `docs/AI.md`)
+- **Not built yet:** AI chat sidebar UI (Part 10)
 
 Run locally: `./scripts/start` from repo root → http://localhost:8000
 
@@ -63,5 +64,6 @@ All documents for planning and executing this project will be in the `docs/` dir
 | `docs/PLAN.md` | Part order, checklists, progress — **read before starting work** |
 | `docs/DATABASE.md` | SQLite schema, seed data, DB paths |
 | `docs/API.md` | REST endpoints, `BoardData` contract |
+| `docs/AI.md` | AI chat operations, prompt strategy, failure modes |
 | `frontend/AGENTS.md` | Frontend architecture, API client, DnD, tests |
 | `backend/AGENTS.md` | Backend layout, run/test commands |

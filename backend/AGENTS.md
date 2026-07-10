@@ -1,6 +1,6 @@
 # TaskPilot Backend
 
-FastAPI backend for TaskPilot. Serves the static Next.js export at `/`, health at `/api/health`, Kanban CRUD at `/api/*`, and OpenRouter AI ping at `/api/ai/ping`.
+FastAPI backend for TaskPilot. Serves the static Next.js export at `/`, health at `/api/health`, Kanban CRUD at `/api/*`, OpenRouter ping at `/api/ai/ping`, and Kanban-aware chat at `/api/chat`.
 
 ## Layout
 
@@ -11,18 +11,24 @@ backend/
     config.py        DATABASE_PATH, OpenRouter settings
     database.py      SQLite schema, seed, board persistence
     openrouter.py    OpenRouter chat completions client (httpx)
-    schemas.py       Pydantic request/response models
+    chat.py          Parse / validate / apply AI board operations
+    ai_schemas.py    Chat + operation Pydantic models
+    schemas.py       Board Pydantic models
     deps.py          X-User auth dependency
     routes/
       board.py       Kanban API routes
       ai.py          AI ping route
+      chat.py        POST /api/chat
   tests/
-    conftest.py      Temp SQLite DB per test
+    conftest.py
     test_health.py
     test_database.py
     test_board_api.py
     test_openrouter.py
     test_ai_ping.py
+    test_ai_parse.py
+    test_ai_validate.py
+    test_chat_api.py
   data/              Local SQLite file (gitignored) when not using Docker
   pyproject.toml
 ```
@@ -42,10 +48,11 @@ Never commit secrets. The API key must not be exposed to the frontend.
 - Schema and seed: see `docs/DATABASE.md`.
 - On startup: create tables if missing; seed only when `users` is empty.
 - Seed matches `frontend/src/lib/kanban.ts` `initialData` (five columns, eight cards, demo user `user`).
+- AI chat history is **not** stored in SQLite.
 
 ## API
 
-See `docs/API.md`. Board routes require `X-User: user` (demo MVP). AI ping does not.
+See `docs/API.md` and `docs/AI.md`. Board routes and chat require `X-User: user`. AI ping does not.
 
 | Method | Path | Action |
 |--------|------|--------|
@@ -57,10 +64,11 @@ See `docs/API.md`. Board routes require `X-User: user` (demo MVP). AI ping does 
 | DELETE | `/api/cards/{id}` | Delete card |
 | POST | `/api/cards/{id}/move` | Move/reorder card |
 | POST | `/api/ai/ping` | OpenRouter connectivity check (no auth); 503 if key missing |
+| POST | `/api/chat` | Kanban-aware AI; optional granular ops; see `docs/AI.md` |
 
-All board mutations return the full `BoardData` JSON.
+All board mutations return the full `BoardData` JSON. Chat returns `{ message, board? }`.
 
-Model: `openai/gpt-oss-120b` via OpenRouter (`httpx`).
+Model: `openai/gpt-oss-120b` via OpenRouter (`httpx`). AI board ops are validated then applied all-or-nothing.
 
 ## Run locally (without Docker)
 
@@ -75,24 +83,14 @@ cd backend && uv sync && uv run uvicorn app.main:app --host 127.0.0.1 --port 800
 cd frontend && npm run dev
 ```
 
-Full stack without Next dev server (requires built static files in `backend/static/`):
-
-```bash
-cd frontend && npm run build
-# copy or symlink frontend/out to backend/static, then:
-cd backend && uv run uvicorn app.main:app --port 8000
-```
-
 ## Tests
 
 ```bash
 cd backend
 uv sync --group dev
 uv run pytest -v                 # default suite (skips @pytest.mark.live)
-uv run pytest -m live -v         # real OpenRouter call (needs .env key)
+uv run pytest -m live -v -o addopts=   # real OpenRouter call (needs .env key)
 ```
-
-Uses an isolated temp database per test via `DATABASE_PATH`.
 
 ## Docker
 
@@ -103,24 +101,18 @@ From repo root:
 ./scripts/stop
 ```
 
-SQLite persists in Docker named volume `taskpilot_data` (see `docker-compose.yml`). Reset data: `docker compose down -v`. Compose loads repo-root `.env` for `OPENROUTER_API_KEY`.
+SQLite persists in Docker named volume `taskpilot_data`. Compose loads repo-root `.env` for `OPENROUTER_API_KEY`.
 
-Optional bind mount for a host-visible DB file:
-
-```yaml
-volumes:
-  - ./data:/app/data
-```
-
-Use bind mount only when Docker Desktop has file-sharing enabled for the project path.
-
-Example API calls:
+Example:
 
 ```bash
 curl -H "X-User: user" http://localhost:8000/api/board
 curl -X POST http://localhost:8000/api/ai/ping
+curl -X POST -H "X-User: user" -H "Content-Type: application/json" \
+  -d '{"message":"What is on my board?","history":[]}' \
+  http://localhost:8000/api/chat
 ```
 
 ## Not yet implemented
 
-- `POST /api/chat` with board operations (Parts 9–10)
+- AI chat sidebar UI (Part 10)

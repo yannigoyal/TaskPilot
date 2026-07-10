@@ -28,6 +28,8 @@ Incremental build plan for TaskPilot. Complete parts in order. After each part: 
 | **Missing OpenRouter key** | Return **503** when `OPENROUTER_API_KEY` is missing/empty (service unavailable). |
 | **Part 8 live verification** | Sign-off includes a real OpenRouter call (not mocked-only); confirm a model reply. |
 | **Part 7 approval** | Part 7 approved; proceed to Part 8. |
+| **AI operation apply (Part 9)** | All-or-nothing: validate every operation against the board (simulating sequential state) before any write; apply in one SQLite transaction and roll back on failure. Unknown IDs fail the whole request. |
+| **Part 8 approval** | Part 8 approved; proceed to Part 9. |
 
 
 ## Architecture overview
@@ -52,18 +54,16 @@ Static serving notes (Parts 3+):
 - Serve `index.html` (or equivalent) for unknown non-API paths so client-side routing works on refresh.
 - Next export outputs to `frontend/out/`; copy into the backend image at build time.
 
-## Current project state (after Part 8)
+## Current project state (after Part 9)
 
-The MVP Kanban is fully wired end-to-end (Parts 1–7), and OpenRouter connectivity is proven (Part 8):
+Kanban MVP + OpenRouter chat backend are in place:
 
-- **Auth:** Frontend fake login (`user` / `password`); `X-User` header on all API calls.
-- **Persistence:** SQLite via normalized schema (`docs/DATABASE.md`); Docker named volume `taskpilot_data`.
-- **API:** Full board CRUD under `/api/*` (`docs/API.md`); OpenRouter ping at `POST /api/ai/ping` (no auth; 503 if key missing).
-- **AI:** `httpx` client → `openai/gpt-oss-120b` via OpenRouter; live call verified (`{"reply":"4"}`).
-- **Frontend:** Loads board from API after login; rename, add, edit, delete, drag-and-drop all persist.
-- **Tests:** Backend pytest includes mocked AI tests + `@pytest.mark.live` for real OpenRouter.
+- **Auth / board:** Unchanged from Part 7 (persistent CRUD via `/api/*`).
+- **AI ping:** `POST /api/ai/ping` (Part 8).
+- **AI chat:** `POST /api/chat` loads board context, calls OpenRouter, parses structured `{ message, operations }`, validates all ops, applies all-or-nothing via existing persistence (`docs/AI.md`).
+- **Tests:** Backend pytest covers parse/validate/chat (reply-only + mutations + corruption safety); live smoke confirmed reply + create_card.
 
-**Not yet implemented:** Kanban-aware chat + sidebar UI (Parts 9–10).
+**Not yet implemented:** AI chat sidebar UI (Part 10).
 
 **Key docs for agents:**
 
@@ -489,41 +489,41 @@ Send board context + user question + conversation history to the model; return r
 
 **Operation schema**
 
-- Define Pydantic models for AI response: `{ message: string, operations?: Operation[] }`
-- Operation types (granular): e.g. `create_card`, `update_card`, `delete_card`, `move_card`, `rename_column`
-- Each operation type has required fields documented in `docs/API.md` or `docs/AI.md`
-- Document prompt structure: current board JSON, user message, recent history
+- [x] Define Pydantic models for AI response: `{ message: string, operations?: Operation[] }`
+- [x] Operation types (granular): `create_card`, `update_card`, `delete_card`, `move_card`, `rename_column`
+- [x] Each operation type has required fields documented in `docs/AI.md` (and summarized in `docs/API.md`)
+- [x] Document prompt structure: current board JSON, user message, recent history
 
 **Chat endpoint**
 
-- `POST /api/chat` — body: `{ message: string, history: Message[] }`; requires `X-User`
-- Load current board from DB for context
-- Call OpenRouter with structured output instruction (JSON schema or tool-style parsing)
-- Parse and validate response; reject malformed operations with clear error (no DB corruption)
-- Apply valid operations sequentially via existing Part 6 persistence layer
-- Return `{ message, board? }` — include updated `BoardData` if any operations applied
+- [x] `POST /api/chat` — body: `{ message: string, history: Message[] }`; requires `X-User`
+- [x] Load current board from DB for context
+- [x] Call OpenRouter with structured output instruction (JSON-only system prompt)
+- [x] Parse and validate response; reject malformed operations with clear error (no DB corruption)
+- [x] Apply valid operations sequentially via existing Part 6 persistence layer (transactional)
+- [x] Return `{ message, board? }` — include updated `BoardData` if any operations applied
 
 **Safety**
 
-- Validate column/card IDs exist before mutate; unknown IDs fail that operation or entire request (pick one, document it)
-- Transaction or rollback strategy if partial apply is risky (keep simple: all-or-nothing preferred)
-- History stays in request payload only — never written to SQLite
+- [x] Validate column/card IDs exist before mutate; unknown IDs fail the **entire** request
+- [x] All-or-nothing apply with SQLite rollback on failure
+- [x] History stays in request payload only — never written to SQLite
 
 **Docs**
 
-- Add `docs/AI.md` describing operation types, prompt strategy, and failure modes
+- [x] Add `docs/AI.md` describing operation types, prompt strategy, and failure modes
 
 ### Tests
 
-- Unit tests: parse valid structured response
-- Unit tests: reject invalid JSON, unknown operation types, missing fields
-- Unit tests: each operation type applied correctly (mocked DB)
-- Integration: mocked LLM returns `create_card` → card appears in DB
-- Integration: mocked LLM returns `move_card` → order updated in DB
-- Integration: mocked LLM returns reply only (no operations) → DB unchanged
-- Integration: invalid operation does not corrupt existing board data
-- ~80% coverage on AI orchestration modules
-- Optional live smoke test with real key
+- [x] Unit tests: parse valid structured response
+- [x] Unit tests: reject invalid JSON, unknown operation types, missing fields
+- [x] Unit tests: each operation type validated correctly against board
+- [x] Integration: mocked LLM returns `create_card` → card appears in DB
+- [x] Integration: mocked LLM returns `move_card` → order updated in DB
+- [x] Integration: mocked LLM returns reply only (no operations) → DB unchanged
+- [x] Integration: invalid operation does not corrupt existing board data
+- [x] ~80% coverage on AI orchestration modules (parse/validate/chat API tests)
+- [x] Live smoke: real OpenRouter reply-only + create_card
 
 ### Success criteria
 
@@ -600,7 +600,7 @@ Sidebar chat using Part 9; refresh board when operations are applied.
 | 6    | Backend Kanban API | Complete   |
 | 7    | Frontend + Backend | Complete   |
 | 8    | AI connectivity    | Complete   |
-| 9    | Kanban-aware AI    | Not started |
+| 9    | Kanban-aware AI    | Complete   |
 | 10   | AI chat sidebar UI | Not started |
 
-**Next up:** Part 9 — Kanban-aware AI (`POST /api/chat` with structured operations).
+**Next up:** Part 10 — AI chat sidebar UI.

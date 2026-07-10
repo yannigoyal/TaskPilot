@@ -205,6 +205,27 @@ Backend reorders sibling cards in source and target columns so positions stay co
 
 ---
 
+### `POST /api/chat`
+
+Kanban-aware AI chat (Part 9). Full contract: `docs/AI.md`.
+
+**Headers:** `X-User: user`
+
+**Body:**
+
+```json
+{
+  "message": "Move the CI card to In Progress",
+  "history": []
+}
+```
+
+**Response `200`:** `{ "message": "...", "board"?: BoardData }` — `board` only when operations were applied.
+
+**Errors:** `401`, `400` (invalid operations), `502` (model/parse failure), `503` (missing API key), `422`
+
+---
+
 ## Frontend action mapping (Part 7)
 
 | UI action | API call |
@@ -226,12 +247,10 @@ Drag-and-drop index: frontend computes target `column_id` and `position` from dr
 
 ## Future endpoints (not Part 6)
 
-Documented here for continuity; implemented in later parts:
-
 | Part | Endpoint | Purpose |
 |------|----------|---------|
 | 8 | `POST /api/ai/ping` | OpenRouter connectivity smoke test |
-| 9 | `POST /api/chat` | AI chat + optional granular board operations |
+| 9 | `POST /api/chat` | AI chat + optional granular board operations — see `docs/AI.md` |
 
 Part 9 chat applies mutations through the same persistence layer as the routes above. AI chat history is **not** stored in SQLite.
 

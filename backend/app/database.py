@@ -282,7 +282,12 @@ def _compact_column(connection: sqlite3.Connection, column_id: str) -> None:
 
 
 def rename_column(
-    connection: sqlite3.Connection, username: str, column_id: str, title: str
+    connection: sqlite3.Connection,
+    username: str,
+    column_id: str,
+    title: str,
+    *,
+    commit: bool = True,
 ) -> BoardData:
     board_id = _require_board_id(connection, username)
     _require_column_on_board(connection, column_id, board_id)
@@ -290,7 +295,8 @@ def rename_column(
         "UPDATE columns SET title = ? WHERE id = ?",
         (title, column_id),
     )
-    connection.commit()
+    if commit:
+        connection.commit()
     return load_board(connection, board_id)
 
 
@@ -301,6 +307,8 @@ def create_card(
     title: str,
     details: str,
     position: int | None,
+    *,
+    commit: bool = True,
 ) -> BoardData:
     board_id = _require_board_id(connection, username)
     _require_column_on_board(connection, column_id, board_id)
@@ -324,7 +332,8 @@ def create_card(
         "INSERT INTO cards (id, column_id, title, details, position) VALUES (?, ?, ?, ?, ?)",
         (card_id, column_id, title, details, insert_position),
     )
-    connection.commit()
+    if commit:
+        connection.commit()
     return load_board(connection, board_id)
 
 
@@ -334,6 +343,8 @@ def update_card(
     card_id: str,
     title: str | None,
     details: str | None,
+    *,
+    commit: bool = True,
 ) -> BoardData:
     board_id = _require_board_id(connection, username)
     _require_card_on_board(connection, card_id, board_id)
@@ -345,17 +356,25 @@ def update_card(
             "UPDATE cards SET details = ? WHERE id = ?",
             (details, card_id),
         )
-    connection.commit()
+    if commit:
+        connection.commit()
     return load_board(connection, board_id)
 
 
-def delete_card(connection: sqlite3.Connection, username: str, card_id: str) -> BoardData:
+def delete_card(
+    connection: sqlite3.Connection,
+    username: str,
+    card_id: str,
+    *,
+    commit: bool = True,
+) -> BoardData:
     board_id = _require_board_id(connection, username)
     card = _require_card_on_board(connection, card_id, board_id)
     column_id = str(card["column_id"])
     connection.execute("DELETE FROM cards WHERE id = ?", (card_id,))
     _compact_column(connection, column_id)
-    connection.commit()
+    if commit:
+        connection.commit()
     return load_board(connection, board_id)
 
 
@@ -365,6 +384,8 @@ def move_card(
     card_id: str,
     target_column_id: str,
     target_position: int,
+    *,
+    commit: bool = True,
 ) -> BoardData:
     board_id = _require_board_id(connection, username)
     card = _require_card_on_board(connection, card_id, board_id)
@@ -411,5 +432,6 @@ def move_card(
             (target_column_id, target_position, card_id),
         )
 
-    connection.commit()
+    if commit:
+        connection.commit()
     return load_board(connection, board_id)

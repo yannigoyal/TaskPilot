@@ -30,13 +30,31 @@ def chat_completion(
     client: httpx.Client | None = None,
 ) -> str:
     """Send a single user prompt and return the assistant message text."""
+    return chat_completion_messages(
+        [{"role": "user", "content": prompt}],
+        api_key=api_key,
+        model=model,
+        timeout=timeout,
+        client=client,
+    )
+
+
+def chat_completion_messages(
+    messages: list[dict[str, str]],
+    *,
+    api_key: str | None = None,
+    model: str = OPENROUTER_MODEL,
+    timeout: float = 60.0,
+    client: httpx.Client | None = None,
+) -> str:
+    """Send a chat message list and return the assistant message text."""
     key = api_key if api_key is not None else get_openrouter_api_key()
     if not key:
         raise MissingApiKeyError()
 
     payload = {
         "model": model,
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": messages,
     }
     headers = {
         "Authorization": f"Bearer {key}",

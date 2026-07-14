@@ -3,6 +3,7 @@
 ## Business Requirements
 
 TaskPilot is a project management web app. Key features:
+
 - A user can sign in
 - When signed in, the user sees a Kanban board representing their project
 - The Kanban board has fixed columns that can be renamed
@@ -13,10 +14,10 @@ TaskPilot is a project management web app. Key features:
 
 - **Stack:** Next.js static export + FastAPI + SQLite in a single Docker container
 - **Auth:** Fake login (`user` / `password`); API calls use `X-User: user` header
-- **Board:** Persistent in SQLite; all CRUD via `/api/*` (see `docs/API.md`)
+- **Board:** Persistent in SQLite; all CRUD via `/api/`* (see `docs/API.md`)
 - **AI:** OpenRouter ping + `POST /api/chat` with validated ops (`docs/AI.md`) + chat sidebar UI
 
-Run locally: `./scripts/start` from repo root → http://localhost:8000
+Run locally: `./scripts/start` from repo root → [http://localhost:8000](http://localhost:8000)
 
 ## Limitations
 
@@ -58,11 +59,14 @@ For the MVP, this will run locally (in a docker container)
 
 All documents for planning and executing this project will be in the `docs/` directory.
 
-| Document | When to read |
-| -------- | ------------ |
-| `docs/PLAN.md` | Part order, checklists, progress — **read before starting work** |
-| `docs/DATABASE.md` | SQLite schema, seed data, DB paths |
-| `docs/API.md` | REST endpoints, `BoardData` contract |
-| `docs/AI.md` | AI chat operations, prompt strategy, failure modes |
-| `frontend/AGENTS.md` | Frontend architecture, API client, DnD, tests |
-| `backend/AGENTS.md` | Backend layout, run/test commands |
+
+| Document             | When to read                                                     |
+| -------------------- | ---------------------------------------------------------------- |
+| `docs/PLAN.md`       | Part order, checklists, progress — **read before starting work** |
+| `docs/DATABASE.md`   | SQLite schema, seed data, DB paths                               |
+| `docs/API.md`        | REST endpoints, `BoardData` contract                             |
+| `docs/AI.md`         | AI chat operations, prompt strategy, failure modes               |
+| `frontend/AGENTS.md` | Frontend architecture, API client, DnD, tests                    |
+| `backend/AGENTS.md`  | Backend layout, run/test commands                                |
+
+

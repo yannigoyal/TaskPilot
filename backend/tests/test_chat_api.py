@@ -203,14 +203,17 @@ def test_chat_history_not_written_to_db(client, monkeypatch):
     )
     assert response.status_code == 200
 
-    from app.main import db_connection
+    from app.config import get_database_path
+    from app.database import connect
 
+    conn = connect(get_database_path())
     tables = {
         row[0]
-        for row in db_connection.execute(
+        for row in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'"
         ).fetchall()
     }
+    conn.close()
     assert "chat_messages" not in tables
     assert "messages" not in tables
 

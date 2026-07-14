@@ -6,16 +6,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.ai_schemas import ChatRequest, ChatResponse
 from app.chat import AiParseError, AiValidationError, run_chat
 from app.database import BoardError, NotFoundError, get_user_id
-from app.deps import require_known_user
+from app.deps import get_db_connection, require_known_user
 from app.openrouter import MissingApiKeyError, OpenRouterError
 
 router = APIRouter(prefix="/api", tags=["chat"])
-
-
-def get_db_connection() -> sqlite3.Connection:
-    from app.main import db_connection
-
-    return db_connection
 
 
 @router.post("/chat", response_model=ChatResponse, response_model_exclude_none=True)

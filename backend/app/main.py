@@ -1,4 +1,3 @@
-import sqlite3
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -15,8 +14,6 @@ from app.routes.chat import router as chat_router
 
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 
-db_connection: sqlite3.Connection | None = None
-
 
 class SPAStaticFiles(StaticFiles):
     async def get_response(self, path: str, scope) -> Response:
@@ -28,34 +25,26 @@ class SPAStaticFiles(StaticFiles):
             raise
 
 
-def open_database() -> sqlite3.Connection:
-    connection = connect(get_database_path())
-    init_db(connection)
-    return connection
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global db_connection
-    db_connection = open_database()
+    # Ensure the database file, schema, and seed exist before serving.
+    # Each request opens its OWN connection (app.deps.get_db_connection),
+    # so concurrent requests never share connection/transaction state.
+    connection = connect(get_database_path())
+    init_db(connection)
+    connection.close()
     yield
-    if db_connection is not None:
-        db_connection.close()
-    db_connection = None
 
 
 app = FastAPI(title="TaskPilot", lifespan=lifespan)
-
 
 @app.get("/api/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
-
 app.include_router(board_router)
 app.include_router(ai_router)
 app.include_router(chat_router)
-
 
 if STATIC_DIR.is_dir():
     app.mount("/", SPAStaticFiles(directory=STATIC_DIR, html=True), name="static")

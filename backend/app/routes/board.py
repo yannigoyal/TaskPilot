@@ -14,16 +14,10 @@ from app.database import (
     rename_column,
     update_card,
 )
-from app.deps import require_known_user
+from app.deps import get_db_connection, require_known_user
 from app.schemas import BoardData, CardCreate, CardMove, CardUpdate, ColumnRename
 
 router = APIRouter(prefix="/api", tags=["board"])
-
-
-def get_db_connection() -> sqlite3.Connection:
-    from app.main import db_connection
-
-    return db_connection
 
 
 def _handle_board_errors(username: str, connection: sqlite3.Connection) -> None:

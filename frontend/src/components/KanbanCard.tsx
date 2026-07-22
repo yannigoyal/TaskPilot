@@ -56,9 +56,11 @@ export const KanbanCard = ({ card, onEdit, onDelete }: KanbanCardProps) => {
       ref={setNodeRef}
       style={style}
       className={clsx(
-        "rounded-2xl border border-transparent bg-white px-4 py-4 shadow-[0_12px_24px_rgba(3,33,71,0.08)]",
-        "transition-all duration-150",
-        isDragging && "opacity-60 shadow-[0_18px_32px_rgba(3,33,71,0.16)]"
+        "group rounded-xl border bg-[var(--surface-strong)] px-4 py-3.5 shadow-[var(--shadow-sm)]",
+        "transition-all duration-200 ease-out",
+        isDragging
+          ? "border-[var(--stroke-strong)] opacity-50 shadow-[var(--shadow-lg)]"
+          : "border-[var(--stroke)] hover:-translate-y-0.5 hover:border-[var(--stroke-strong)] hover:shadow-[var(--shadow)]"
       )}
       {...(editing ? {} : { ...attributes, ...listeners })}
       data-testid={`card-${card.id}`}
@@ -75,60 +77,76 @@ export const KanbanCard = ({ card, onEdit, onDelete }: KanbanCardProps) => {
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             aria-label="Card title"
-            className="w-full rounded-xl border border-[var(--stroke)] px-3 py-2 text-sm font-semibold text-[var(--navy-dark)] outline-none focus:border-[var(--primary-blue)]"
+            className="w-full rounded-lg border border-[var(--stroke)] bg-[var(--surface)] px-3 py-2 text-sm font-semibold text-[var(--text)] outline-none transition-colors focus:border-[var(--primary-blue)]"
           />
           <textarea
             value={details}
             onChange={(event) => setDetails(event.target.value)}
             aria-label="Card details"
             rows={3}
-            className="w-full rounded-xl border border-[var(--stroke)] px-3 py-2 text-sm text-[var(--gray-text)] outline-none focus:border-[var(--primary-blue)]"
+            className="w-full rounded-lg border border-[var(--stroke)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--gray-text)] outline-none transition-colors focus:border-[var(--primary-blue)]"
           />
           <div className="flex gap-2">
             <button
               type="submit"
               disabled={saving || !title.trim()}
-              className="rounded-full bg-[var(--secondary-purple)] px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+              className="rounded-full bg-[var(--primary-blue)] px-4 py-2 text-xs font-semibold text-[var(--navy-dark)] transition hover:brightness-110 disabled:opacity-60"
             >
               Save
             </button>
             <button
               type="button"
               onClick={handleCancel}
-              className="rounded-full border border-[var(--stroke)] px-4 py-2 text-xs font-semibold text-[var(--navy-dark)]"
+              className="rounded-full border border-[var(--stroke)] px-4 py-2 text-xs font-semibold text-[var(--text)] transition-colors hover:border-[var(--stroke-strong)]"
             >
               Cancel
             </button>
           </div>
         </form>
       ) : (
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h4 className="font-display text-base font-semibold text-[var(--navy-dark)]">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h4 className="font-display text-sm font-semibold text-[var(--text)]">
               {card.title}
             </h4>
-            <p className="mt-2 text-sm leading-6 text-[var(--gray-text)]">
+            <p className="mt-1.5 line-clamp-3 text-sm leading-6 text-[var(--gray-text)]">
               {card.details}
             </p>
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex shrink-0 flex-col gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100">
             <button
               type="button"
               onPointerDown={(event) => event.stopPropagation()}
               onClick={() => setEditing(true)}
-              className="rounded-full border border-transparent px-2 py-1 text-xs font-semibold text-[var(--primary-blue)] transition hover:border-[var(--stroke)]"
+              className="rounded-md p-1.5 text-[var(--gray-text)] transition-colors hover:bg-[var(--surface-hover)] hover:text-[var(--primary-blue)]"
               aria-label={`Edit ${card.title}`}
             >
-              Edit
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M11.05 3 13 4.95l-7.5 7.5H3v-2.45L10.55 2.5Z"
+                  stroke="currentColor"
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </button>
             <button
               type="button"
               onPointerDown={(event) => event.stopPropagation()}
               onClick={() => onDelete(card.id)}
-              className="rounded-full border border-transparent px-2 py-1 text-xs font-semibold text-[var(--gray-text)] transition hover:border-[var(--stroke)] hover:text-[var(--navy-dark)]"
+              className="rounded-md p-1.5 text-[var(--gray-text)] transition-colors hover:bg-[var(--surface-hover)] hover:text-[var(--secondary-purple)]"
               aria-label={`Delete ${card.title}`}
             >
-              Remove
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M3.5 4.5h9M6.5 4.5V3a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1.5M6.5 7.5v4M9.5 7.5v4M4.5 4.5l.6 8a1 1 0 0 0 1 .95h3.8a1 1 0 0 0 1-.95l.6-8"
+                  stroke="currentColor"
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </button>
           </div>
         </div>

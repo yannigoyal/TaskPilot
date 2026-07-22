@@ -1,0 +1,459 @@
+- generic [ref=e2]:
+  - generic:
+    - link "Skip to content" [ref=e3] [cursor=pointer]:
+      - /url: "#start-of-content"
+    - banner [ref=e5]:
+      - heading "Navigation Menu" [level=2] [ref=e6]
+      - generic [ref=e8]:
+        - button "Toggle navigation" [ref=e10] [cursor=pointer]
+        - link "Homepage" [ref=e16] [cursor=pointer]:
+          - /url: /
+        - link "Sign in" [ref=e20] [cursor=pointer]:
+          - /url: /login
+  - main [ref=e23]:
+    - generic [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - generic [ref=e33]:
+            - region [ref=e34]:
+              - generic [ref=e37]:
+                - heading "The future of building happens together" [level=1] [ref=e38]
+                - paragraph [ref=e39]: Tools and trends evolve, but collaboration endures. With GitHub, developers, agents, and code come together on one platform.
+            - generic [ref=e40]:
+              - form "Sign up for GitHub" [ref=e41]:
+                - generic [ref=e43]:
+                  - generic [ref=e44]:
+                    - generic [ref=e45]: Enter your email
+                    - textbox "Enter your email" [ref=e47]:
+                      - /placeholder: you@domain.com
+                  - button "Sign up for GitHub" [ref=e48] [cursor=pointer]
+              - link "Try GitHub Copilot" [ref=e50] [cursor=pointer]:
+                - /url: /github-copilot/pro
+          - generic [ref=e53]:
+            - heading "GitHub features" [level=2] [ref=e54]
+            - button "Pause" [ref=e55] [cursor=pointer]
+            - generic [ref=e57]: A demonstration animation of a code editor using GitHub Copilot Chat, where the user requests GitHub Copilot to refactor duplicated logic and extract it into a reusable function for a given code snippet.
+        - generic [ref=e62]:
+          - tablist [ref=e64]:
+            - generic [ref=e65]:
+              - tab "Code" [ref=e67] [cursor=pointer]
+              - tab "Plan" [ref=e68] [cursor=pointer]
+              - tab "Collaborate" [ref=e69] [cursor=pointer]
+              - tab "Automate" [ref=e70] [cursor=pointer]
+              - tab "Secure" [ref=e71] [cursor=pointer]
+          - region [ref=e72]: Write, test, and fix code quickly with GitHub Copilot, from simple boilerplate to complex features.
+        - generic [ref=e74]:
+          - heading "GitHub customers" [level=2] [ref=e75]
+          - generic [ref=e76]:
+            - generic [ref=e78]:
+              - img "American Airlines" [ref=e79]
+              - img "Duolingo" [ref=e82]
+              - img "Ernst and Young" [ref=e84]
+              - img "Ford" [ref=e88]
+              - img "InfoSys" [ref=e91]
+              - img "Mercado Libre" [ref=e94]
+              - img "Mercedes-Benz" [ref=e110]
+              - img "Shopify" [ref=e113]
+              - img "Philips" [ref=e125]
+              - img "Société Générale" [ref=e128]
+              - img "Spotify" [ref=e146]
+              - img "Vodafone" [ref=e149]
+            - button "Pause animation" [ref=e242] [cursor=pointer]
+      - generic [ref=e246]:
+        - generic [ref=e248]:
+          - generic [ref=e252]:
+            - heading "Accelerate your entire workflow" [level=2] [ref=e253]
+            - paragraph [ref=e255]: From your first line of code to final deployment, GitHub provides AI and automation tools to help you build and ship better software faster.
+          - generic [ref=e257]:
+            - button "Pause video" [ref=e263] [cursor=pointer]
+            - generic [ref=e265]: A Copilot chat window with the 'Ask' mode enabled. The user switches from 'Ask' mode to 'Agent' mode from a dropdown menu, then sends the prompt 'Update the website to allow searching for running races by name.' Copilot analyzes the codebase, then explains the required edits for three files before generating them. Copilot then confirms completion and summarizes the implemented changes for the new functionality allowing users to search races by name and view paginated, filtered results.
+        - generic [ref=e273]:
+          - generic [ref=e275]:
+            - heading "Your AI partner everywhere. Copilot is ready to work with you at each step of the software development lifecycle." [level=3] [ref=e276]
+            - link "Explore GitHub Copilot" [ref=e279] [cursor=pointer]:
+              - /url: /features/copilot
+          - generic [ref=e283]:
+            - generic [ref=e285]:
+              - generic:
+                - img "Duolingo"
+              - paragraph [ref=e286]: Duolingo boosts developer speed by 25% with GitHub Copilot
+              - link "Read customer story" [ref=e287] [cursor=pointer]:
+                - /url: /customer-stories/duolingo
+            - generic [ref=e292]:
+              - generic:
+                - img "Gartner"
+              - paragraph [ref=e293]: 2025 Gartner® Magic Quadrant™ for AI Code Assistants
+              - link "Read industry report" [ref=e294] [cursor=pointer]:
+                - /url: https://www.gartner.com/reprints/?id=1-2LVTG7RP&ct=250915&st=sb
+        - generic [ref=e303]:
+          - generic [ref=e304]:
+            - term [ref=e305]:
+              - button [expanded] [ref=e306]:
+                - heading "Automate your path to production" [level=3] [ref=e308]
+            - definition [ref=e311]:
+              - generic [ref=e313]:
+                - paragraph [ref=e314]: Ship faster with secure, reliable CI/CD.
+                - link "Explore GitHub Actions" [ref=e316] [cursor=pointer]:
+                  - /url: /features/actions
+          - generic [ref=e320]:
+            - term [ref=e321]:
+              - button [ref=e322] [cursor=pointer]:
+                - heading "Code instantly from anywhere" [level=3] [ref=e324]
+            - paragraph [ref=e327]: Launch a full, cloud-based development environment in seconds.
+            - link [ref=e329] [cursor=pointer]:
+              - /url: /features/codespaces
+              - generic [ref=e330]: Explore GitHub Codespaces
+          - generic [ref=e333]:
+            - term [ref=e334]:
+              - button [ref=e335] [cursor=pointer]:
+                - heading "Keep momentum on the go" [level=3] [ref=e337]
+            - paragraph [ref=e340]: Manage projects and assign tasks to Copilot, all from your mobile device.
+            - link [ref=e342] [cursor=pointer]:
+              - /url: /mobile
+              - generic [ref=e343]: Explore GitHub Mobile
+          - generic [ref=e346]:
+            - term [ref=e347]:
+              - button [ref=e348] [cursor=pointer]:
+                - heading "Shape your toolchain" [level=3] [ref=e350]
+            - paragraph [ref=e353]: Extend your stack with apps, actions, and AI models.
+            - link [ref=e355] [cursor=pointer]:
+              - /url: /marketplace
+              - generic [ref=e356]: Explore GitHub Marketplace
+      - generic [ref=e359]:
+        - generic [ref=e361]:
+          - generic [ref=e365]:
+            - heading "Built-in application security where found means fixed" [level=2] [ref=e366]
+            - paragraph [ref=e368]: Use AI to find and fix vulnerabilities so your team can ship more secure software faster.
+          - generic [ref=e375]:
+            - generic [ref=e376]:
+              - heading "Apply fixes in seconds. Spend less time debugging and more time building features with Copilot Autofix." [level=3] [ref=e377]
+              - link "Explore GitHub Advanced Security" [ref=e379] [cursor=pointer]:
+                - /url: /security/advanced-security
+            - img "Copilot Autofix identifies vulnerable code and provides an explanation, together with a secure code suggestion to remediate the vulnerability." [ref=e386]
+        - generic [ref=e389]:
+          - generic [ref=e391]:
+            - generic [ref=e392]:
+              - paragraph [ref=e393]:
+                - generic [ref=e394]: Security debt, solved. Leverage security campaigns and Copilot Autofix to reduce application vulnerabilities.
+              - link "Learn about GitHub Code Security" [ref=e395] [cursor=pointer]:
+                - /url: /security/advanced-security/code-security
+            - generic [ref=e399]:
+              - img "A security campaign screen displays the campaign’s progress bar with 97% completed of 701 alerts. A total of 23 alerts are left with 13 in progress, and the campaign started 20 days ago. The status below shows that there are 7 days left in the campaign with a due date of November 15, 2024."
+          - generic [ref=e401]:
+            - generic [ref=e402]:
+              - paragraph [ref=e403]:
+                - generic [ref=e404]: Dependencies you can depend on. Update vulnerable dependencies with supported fixes for breaking changes.
+              - link "Learn about Dependabot" [ref=e405] [cursor=pointer]:
+                - /url: /security/advanced-security/software-supply-chain
+            - generic [ref=e409]:
+              - img "List of dependencies defined in a requirements .txt file."
+          - generic [ref=e411]:
+            - generic [ref=e412]:
+              - paragraph [ref=e413]:
+                - generic [ref=e414]: Your secrets, your business. Detect, prevent, and remediate leaked secrets across your organization.
+              - link "Learn about GitHub Secret Protection" [ref=e415] [cursor=pointer]:
+                - /url: /security/advanced-security/secret-protection
+            - generic [ref=e419]:
+              - img "GitHub push protection confirms and displays an active secret, and blocks the push."
+          - generic [ref=e421]:
+            - paragraph [ref=e425]:
+              - text: 70% MTTR reduction
+              - generic [ref=e427]:
+                - text: with Copilot Autofix
+                - superscript [ref=e428]:
+                  - link "Footnote 1" [ref=e429] [cursor=pointer]:
+                    - /url: "#footnote-1"
+                    - text: "1"
+            - paragraph [ref=e433]:
+              - text: 8.3M secret leaks stopped
+              - generic [ref=e435]:
+                - text: in the past 12 months with push protection
+                - superscript [ref=e436]:
+                  - link "Footnote 1" [ref=e437] [cursor=pointer]:
+                    - /url: "#footnote-1"
+                    - text: "1"
+      - generic [ref=e439]:
+        - generic [ref=e441]:
+          - generic [ref=e445]:
+            - heading "Work together, achieve more" [level=2] [ref=e446]
+            - paragraph [ref=e448]: From planning and discussion to code review, GitHub keeps your team’s conversation and context next to your code.
+          - img "A project management dashboard showing tasks for the ‘OctoArcade Invaders’ project, with tasks grouped under project phase categories like ‘Prototype,’ ‘Beta,’ and ‘Launch’ in a table layout. One of the columns displays sub-issue progress bars with percentages for each issue." [ref=e460]
+        - generic [ref=e463]:
+          - generic [ref=e465]:
+            - heading "Plan with clarity. Organize everything from high-level roadmaps to everyday tasks." [level=3] [ref=e466]
+            - link "Explore GitHub Projects" [ref=e469] [cursor=pointer]:
+              - /url: /features/issues
+          - figure [ref=e475]:
+            - generic [ref=e476]:
+              - generic [ref=e477]: “
+              - blockquote [ref=e479]:
+                - generic [ref=e480]: It helps us onboard new software engineers and get them productive right away. We have all our source code, issues, and pull requests in one place... GitHub is a complete platform that frees us from menial tasks and enables us to do our best work.
+            - generic [ref=e482]:
+              - generic [ref=e483]: Fabian Faulhaber
+              - generic [ref=e484]: Application manager at Mercedes-Benz
+        - generic [ref=e490]:
+          - generic [ref=e491]:
+            - term [ref=e492]:
+              - button [expanded] [ref=e493]:
+                - heading "Keep track of your tasks" [level=3] [ref=e495]
+            - definition [ref=e498]:
+              - generic [ref=e500]:
+                - paragraph [ref=e501]: Create issues and manage projects with tools that adapt to your code.
+                - link "Explore GitHub Issues" [ref=e503] [cursor=pointer]:
+                  - /url: /features/issues
+          - generic [ref=e507]:
+            - term [ref=e508]:
+              - button [ref=e509] [cursor=pointer]:
+                - heading "Share ideas and ask questions" [level=3] [ref=e511]
+            - paragraph [ref=e514]: Create space for open-ended conversations alongside your project.
+            - link [ref=e516] [cursor=pointer]:
+              - /url: /features/discussions
+              - generic [ref=e517]: Explore GitHub Discussions
+          - generic [ref=e520]:
+            - term [ref=e521]:
+              - button [ref=e522] [cursor=pointer]:
+                - heading "Review code changes together" [level=3] [ref=e524]
+            - paragraph [ref=e527]: Assign initial reviews to Copilot for greater speed and quality.
+            - link [ref=e529] [cursor=pointer]:
+              - /url: /features/code-review
+              - generic [ref=e530]: Explore code review
+          - generic [ref=e533]:
+            - term [ref=e534]:
+              - button [ref=e535] [cursor=pointer]:
+                - heading "Fund open source projects" [level=3] [ref=e537]
+            - paragraph [ref=e540]: Become an open source partner and support the tools and libraries that power your work.
+            - link [ref=e542] [cursor=pointer]:
+              - /url: /sponsors
+              - generic [ref=e543]: Explore GitHub Sponsors
+      - generic [ref=e546]:
+        - generic [ref=e547]:
+          - heading "From startups to enterprises, GitHub scales with teams of any size in any industry." [level=2] [ref=e554]
+          - tablist [ref=e559]:
+            - generic [ref=e560]:
+              - tab "By industry" [ref=e562] [cursor=pointer]
+              - tab "By size" [ref=e563] [cursor=pointer]
+              - tab "By use case" [ref=e564] [cursor=pointer]
+          - separator [ref=e566]
+          - generic [ref=e569]:
+            - link "Technology Figma streamlines development and strengthens security Read customer story" [ref=e571] [cursor=pointer]:
+              - /url: /customer-stories/figma
+              - generic [ref=e576]:
+                - generic [ref=e577]: Technology
+                - paragraph [ref=e578]: Figma streamlines development and strengthens security
+                - generic [ref=e579]: Read customer story
+            - link "Automotive Mercedes-Benz standardizes source code and automates onboarding Read customer story" [ref=e584] [cursor=pointer]:
+              - /url: /customer-stories/mercedes-benz
+              - generic [ref=e589]:
+                - generic [ref=e590]: Automotive
+                - paragraph [ref=e591]: Mercedes-Benz standardizes source code and automates onboarding
+                - generic [ref=e592]: Read customer story
+            - link "Financial services Mercado Libre cuts coding time by 50% Read customer story" [ref=e597] [cursor=pointer]:
+              - /url: /customer-stories/mercado-libre
+              - generic [ref=e602]:
+                - generic [ref=e603]: Financial services
+                - paragraph [ref=e604]: Mercado Libre cuts coding time by 50%
+                - generic [ref=e605]: Read customer story
+        - generic [ref=e611]:
+          - link "Explore customer stories" [ref=e613] [cursor=pointer]:
+            - /url: /customer-stories
+          - link "View all solutions" [ref=e618] [cursor=pointer]:
+            - /url: /solutions
+      - generic [ref=e629]:
+        - heading "Millions of developers and businesses call GitHub home" [level=2] [ref=e630]
+        - paragraph [ref=e631]: Whether you’re scaling your development process or just learning how to code, GitHub is where you belong. Join the world’s most widely adopted developer platform to build the technologies that shape what’s next.
+        - generic [ref=e632]:
+          - form "Sign up for GitHub" [ref=e633]:
+            - generic [ref=e635]:
+              - generic [ref=e636]:
+                - generic [ref=e637]: Enter your email
+                - textbox "Enter your email" [ref=e639]:
+                  - /placeholder: you@domain.com
+              - button "Sign up for GitHub" [ref=e640] [cursor=pointer]
+          - link "Try GitHub Copilot" [ref=e642] [cursor=pointer]:
+            - /url: /github-copilot/pro
+      - generic [ref=e645]:
+        - heading "Footnotes" [level=2] [ref=e646]
+        - list [ref=e647]:
+          - listitem [ref=e648]:
+            - paragraph [ref=e649]:
+              - text: GitHub internal customer data, 2025.
+              - link "Back to content GitHub internal customer data, 2025." [ref=e650] [cursor=pointer]:
+                - /url: "#footnote-1-ref-0"
+      - generic:
+        - link "Back to top":
+          - /url: "#hero"
+  - contentinfo [ref=e656]:
+    - heading "Site-wide Links" [level=2] [ref=e657]
+    - generic [ref=e659]:
+      - region [ref=e660]:
+        - link "Go to GitHub homepage" [ref=e661] [cursor=pointer]:
+          - /url: /
+        - heading "The developer newsletter" [level=3] [ref=e664]
+        - paragraph [ref=e666]: Get tips, technical guides, and best practices. Twice a month. Right in your inbox.
+        - link "Subscribe" [ref=e667] [cursor=pointer]:
+          - /url: /newsletter
+      - generic [ref=e670]:
+        - navigation [ref=e671]:
+          - heading "Platform" [level=3] [ref=e672]
+          - list [ref=e673]:
+            - listitem [ref=e674]:
+              - link "Features" [ref=e675] [cursor=pointer]:
+                - /url: /features
+            - listitem [ref=e677]:
+              - link "Enterprise" [ref=e678] [cursor=pointer]:
+                - /url: /enterprise
+            - listitem [ref=e680]:
+              - link "Copilot" [ref=e681] [cursor=pointer]:
+                - /url: /features/copilot
+            - listitem [ref=e683]:
+              - link "AI" [ref=e684] [cursor=pointer]:
+                - /url: /features/ai
+            - listitem [ref=e686]:
+              - link "Security" [ref=e687] [cursor=pointer]:
+                - /url: /security
+            - listitem [ref=e689]:
+              - link "Pricing" [ref=e690] [cursor=pointer]:
+                - /url: /pricing
+            - listitem [ref=e692]:
+              - link "Team" [ref=e693] [cursor=pointer]:
+                - /url: /team
+            - listitem [ref=e695]:
+              - link "Resources" [ref=e696] [cursor=pointer]:
+                - /url: https://resources.github.com
+            - listitem [ref=e698]:
+              - link "Roadmap" [ref=e699] [cursor=pointer]:
+                - /url: /github/roadmap
+            - listitem [ref=e701]:
+              - link "Compare GitHub" [ref=e702] [cursor=pointer]:
+                - /url: /resources/articles/devops-tools-comparison
+        - navigation [ref=e704]:
+          - heading "Ecosystem" [level=3] [ref=e705]
+          - list [ref=e706]:
+            - listitem [ref=e707]:
+              - link "Developer API" [ref=e708] [cursor=pointer]:
+                - /url: https://docs.github.com/get-started/exploring-integrations/about-building-integrations
+            - listitem [ref=e710]:
+              - link "Partners" [ref=e711] [cursor=pointer]:
+                - /url: https://partner.github.com
+            - listitem [ref=e713]:
+              - link "Education" [ref=e714] [cursor=pointer]:
+                - /url: /edu
+            - listitem [ref=e716]:
+              - link "GitHub CLI" [ref=e717] [cursor=pointer]:
+                - /url: https://cli.github.com
+            - listitem [ref=e719]:
+              - link "GitHub Desktop" [ref=e720] [cursor=pointer]:
+                - /url: https://desktop.github.com
+            - listitem [ref=e722]:
+              - link "GitHub Mobile" [ref=e723] [cursor=pointer]:
+                - /url: /mobile
+            - listitem [ref=e725]:
+              - link "GitHub Marketplace" [ref=e726] [cursor=pointer]:
+                - /url: /marketplace
+            - listitem [ref=e728]:
+              - link "MCP Registry" [ref=e729] [cursor=pointer]:
+                - /url: /mcp
+        - navigation [ref=e731]:
+          - heading "Support" [level=3] [ref=e732]
+          - list [ref=e733]:
+            - listitem [ref=e734]:
+              - link "Docs" [ref=e735] [cursor=pointer]:
+                - /url: https://docs.github.com
+            - listitem [ref=e737]:
+              - link "Community Forum" [ref=e738] [cursor=pointer]:
+                - /url: https://github.community
+            - listitem [ref=e740]:
+              - link "Professional Services" [ref=e741] [cursor=pointer]:
+                - /url: https://services.github.com
+            - listitem [ref=e743]:
+              - link "Premium Support" [ref=e744] [cursor=pointer]:
+                - /url: /enterprise/premium-support
+            - listitem [ref=e746]:
+              - link "Skills" [ref=e747] [cursor=pointer]:
+                - /url: https://skills.github.com
+            - listitem [ref=e749]:
+              - link "Status" [ref=e750] [cursor=pointer]:
+                - /url: https://www.githubstatus.com
+            - listitem [ref=e752]:
+              - link "Contact GitHub" [ref=e753] [cursor=pointer]:
+                - /url: https://support.github.com?tags=dotcom-footer
+            - listitem [ref=e755]:
+              - link "What is Git?" [ref=e756] [cursor=pointer]:
+                - /url: /git-guides
+            - listitem [ref=e758]:
+              - link "Sitemap" [ref=e759] [cursor=pointer]:
+                - /url: /sitemap
+        - navigation [ref=e761]:
+          - heading "Company" [level=3] [ref=e762]
+          - list [ref=e763]:
+            - listitem [ref=e764]:
+              - link "About" [ref=e765] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=e767]:
+              - link "Why GitHub" [ref=e768] [cursor=pointer]:
+                - /url: /why-github
+            - listitem [ref=e770]:
+              - link "Customer Stories" [ref=e771] [cursor=pointer]:
+                - /url: /customer-stories?type=enterprise
+            - listitem [ref=e773]:
+              - link "Blog" [ref=e774] [cursor=pointer]:
+                - /url: https://github.blog
+            - listitem [ref=e776]:
+              - link "The ReadME Project" [ref=e777] [cursor=pointer]:
+                - /url: /readme
+            - listitem [ref=e779]:
+              - link "Careers" [ref=e780] [cursor=pointer]:
+                - /url: https://github.careers
+            - listitem [ref=e782]:
+              - link "Newsroom" [ref=e783] [cursor=pointer]:
+                - /url: /newsroom
+            - listitem [ref=e785]:
+              - link "Inclusion" [ref=e786] [cursor=pointer]:
+                - /url: /about/diversity
+            - listitem [ref=e788]:
+              - link "Social Impact" [ref=e789] [cursor=pointer]:
+                - /url: https://socialimpact.github.com
+            - listitem [ref=e791]:
+              - link "Shop" [ref=e792] [cursor=pointer]:
+                - /url: https://shop.github.com
+    - generic [ref=e795]:
+      - navigation "Legal and Resource Links" [ref=e796]:
+        - list [ref=e797]:
+          - listitem [ref=e798]:
+            - time [ref=e799]: © 2026 GitHub, Inc.
+          - listitem [ref=e800]:
+            - link "Terms" [ref=e801] [cursor=pointer]:
+              - /url: https://docs.github.com/site-policy/github-terms/github-terms-of-service
+          - listitem [ref=e802]:
+            - link "Privacy" [ref=e803] [cursor=pointer]:
+              - /url: https://docs.github.com/site-policy/privacy-policies/github-privacy-statement
+          - listitem [ref=e804]:
+            - button "Manage cookies" [ref=e806] [cursor=pointer]
+          - listitem [ref=e807]:
+            - button "Do not share my personal information" [ref=e809] [cursor=pointer]
+      - generic [ref=e810]:
+        - navigation "GitHub's Social Media Links" [ref=e811]:
+          - list [ref=e812]:
+            - listitem [ref=e813]:
+              - link "GitHub on LinkedIn" [ref=e814] [cursor=pointer]:
+                - /url: https://www.linkedin.com/company/github
+            - listitem [ref=e818]:
+              - link "GitHub on Instagram" [ref=e819] [cursor=pointer]:
+                - /url: https://www.instagram.com/github
+            - listitem [ref=e823]:
+              - link "GitHub on YouTube" [ref=e824] [cursor=pointer]:
+                - /url: https://www.youtube.com/github
+            - listitem [ref=e828]:
+              - link "GitHub on X" [ref=e829] [cursor=pointer]:
+                - /url: https://x.com/github
+            - listitem [ref=e833]:
+              - link "GitHub on TikTok" [ref=e834] [cursor=pointer]:
+                - /url: https://www.tiktok.com/@github
+            - listitem [ref=e838]:
+              - link "GitHub on Twitch" [ref=e839] [cursor=pointer]:
+                - /url: https://www.twitch.tv/github
+            - listitem [ref=e843]:
+              - link "GitHub’s organization on GitHub" [ref=e844] [cursor=pointer]:
+                - /url: https://github.com/github
+        - button "English - Select language" [ref=e849] [cursor=pointer]:
+          - generic [ref=e850]: English

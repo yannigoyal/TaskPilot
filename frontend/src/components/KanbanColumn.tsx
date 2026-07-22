@@ -8,6 +8,7 @@ import { NewCardForm } from "@/components/NewCardForm";
 type KanbanColumnProps = {
   column: Column;
   cards: Card[];
+  accent: string;
   onRename: (columnId: string, title: string) => void;
   onRenameCommit: (columnId: string, title: string) => void | Promise<void>;
   onAddCard: (columnId: string, title: string, details: string) => void | Promise<void>;
@@ -18,6 +19,7 @@ type KanbanColumnProps = {
 export const KanbanColumn = ({
   column,
   cards,
+  accent,
   onRename,
   onRenameCommit,
   onAddCard,
@@ -30,29 +32,35 @@ export const KanbanColumn = ({
     <section
       ref={setNodeRef}
       className={clsx(
-        "flex min-h-[520px] flex-col rounded-3xl border border-[var(--stroke)] bg-[var(--surface-strong)] p-4 shadow-[var(--shadow)] transition",
-        isOver && "ring-2 ring-[var(--accent-yellow)]"
+        "relative flex min-h-[520px] flex-col overflow-hidden rounded-2xl border bg-[var(--surface)] p-4 shadow-[var(--shadow-sm)] transition-colors duration-150",
+        isOver
+          ? "border-[var(--stroke-strong)] bg-[var(--surface-hover)]"
+          : "border-[var(--stroke)]"
       )}
       data-testid={`column-${column.id}`}
     >
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 h-[3px]"
+        style={{ background: accent, opacity: 0.85 }}
+      />
       <div className="flex items-start justify-between gap-3">
         <div className="w-full">
-          <div className="flex items-center gap-3">
-            <div className="h-2 w-10 rounded-full bg-[var(--accent-yellow)]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gray-text)]">
-              {cards.length} cards
+          <div className="flex items-center justify-between gap-3">
+            <input
+              value={column.title}
+              onChange={(event) => onRename(column.id, event.target.value)}
+              onBlur={(event) => void onRenameCommit(column.id, event.target.value)}
+              className="w-full rounded-md bg-transparent font-display text-base font-semibold text-[var(--text)] outline-none transition-colors focus:bg-[var(--surface-hover)]"
+              aria-label="Column title"
+            />
+            <span className="shrink-0 rounded-full bg-[var(--surface-hover)] px-2.5 py-1 text-[11px] font-semibold text-[var(--gray-text)]">
+              {cards.length}
             </span>
           </div>
-          <input
-            value={column.title}
-            onChange={(event) => onRename(column.id, event.target.value)}
-            onBlur={(event) => void onRenameCommit(column.id, event.target.value)}
-            className="mt-3 w-full bg-transparent font-display text-lg font-semibold text-[var(--navy-dark)] outline-none"
-            aria-label="Column title"
-          />
         </div>
       </div>
-      <div className="mt-4 flex flex-1 flex-col gap-3">
+      <div className="mt-4 flex flex-1 flex-col gap-2.5">
         <SortableContext items={column.cardIds} strategy={verticalListSortingStrategy}>
           {cards.map((card) => (
             <KanbanCard
@@ -64,7 +72,7 @@ export const KanbanColumn = ({
           ))}
         </SortableContext>
         {cards.length === 0 ? (
-          <div className="flex flex-1 items-center justify-center rounded-2xl border border-dashed border-[var(--stroke)] px-3 py-6 text-center text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gray-text)]">
+          <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-[var(--stroke)] px-3 py-6 text-center text-xs font-medium text-[var(--text-faint)]">
             Drop a card here
           </div>
         ) : (

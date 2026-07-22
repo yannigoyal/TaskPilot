@@ -69,8 +69,16 @@ export const ChatSidebar = ({
           type="button"
           onClick={() => setOpen(true)}
           data-testid="chat-toggle"
-          className="rounded-full border border-[var(--stroke)] bg-[var(--secondary-purple)] px-5 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-[var(--shadow)] transition hover:brightness-110"
+          className="flex items-center gap-2 rounded-full border border-[var(--stroke)] bg-gradient-to-br from-[var(--primary-blue)] to-[var(--secondary-purple)] px-5 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--navy-dark)] shadow-[var(--shadow-lg)] transition-transform duration-150 hover:-translate-y-0.5"
         >
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="M2 3.5A1.5 1.5 0 0 1 3.5 2h9A1.5 1.5 0 0 1 14 3.5v6A1.5 1.5 0 0 1 12.5 11H6l-3 3v-3H3.5A1.5 1.5 0 0 1 2 9.5v-6Z"
+              stroke="currentColor"
+              strokeWidth="1.3"
+              strokeLinejoin="round"
+            />
+          </svg>
           AI Chat
         </button>
       </div>
@@ -80,14 +88,14 @@ export const ChatSidebar = ({
   return (
     <aside
       data-testid="chat-sidebar"
-      className="fixed bottom-0 right-0 top-0 z-30 flex w-full max-w-[360px] flex-col border-l border-[var(--stroke)] bg-white/95 shadow-[var(--shadow)] backdrop-blur"
+      className="fixed bottom-0 right-0 top-0 z-30 flex w-full max-w-[360px] flex-col border-l border-[var(--stroke)] bg-[var(--glass-strong)] shadow-[var(--shadow-lg)] backdrop-blur-2xl"
     >
       <div className="flex items-center justify-between border-b border-[var(--stroke)] px-5 py-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--gray-text)]">
             Assistant
           </p>
-          <h2 className="mt-1 font-display text-xl font-semibold text-[var(--navy-dark)]">
+          <h2 className="mt-1 font-display text-xl font-semibold text-[var(--text)]">
             AI Chat
           </h2>
         </div>
@@ -95,7 +103,7 @@ export const ChatSidebar = ({
           type="button"
           onClick={() => setOpen(false)}
           data-testid="chat-toggle"
-          className="rounded-full border border-[var(--stroke)] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-[var(--gray-text)] transition hover:border-[var(--primary-blue)] hover:text-[var(--primary-blue)]"
+          className="rounded-full border border-[var(--stroke)] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-[var(--gray-text)] transition-colors hover:border-[var(--primary-blue)] hover:text-[var(--primary-blue)]"
         >
           Hide
         </button>
@@ -123,8 +131,8 @@ export const ChatSidebar = ({
             }
             className={
               message.role === "user"
-                ? "ml-6 rounded-2xl border border-[var(--stroke)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--navy-dark)]"
-                : "mr-6 rounded-2xl border-l-4 border-[var(--accent-yellow)] bg-white px-4 py-3 text-sm text-[var(--navy-dark)] shadow-sm"
+                ? "ml-6 rounded-2xl border border-[var(--stroke)] bg-[var(--surface-hover)] px-4 py-3 text-sm text-[var(--text)]"
+                : "mr-6 rounded-2xl border-l-2 border-[var(--primary-blue)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--text)] shadow-[var(--shadow-sm)]"
             }
           >
             <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--primary-blue)]">
@@ -137,8 +145,13 @@ export const ChatSidebar = ({
         {sending ? (
           <p
             data-testid="chat-sending"
-            className="text-xs uppercase tracking-[0.2em] text-[var(--gray-text)]"
+            className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-[var(--gray-text)]"
           >
+            <span className="flex gap-1">
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--gray-text)] [animation-delay:-0.3s]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--gray-text)] [animation-delay:-0.15s]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--gray-text)]" />
+            </span>
             Thinking...
           </p>
         ) : null}
@@ -147,7 +160,7 @@ export const ChatSidebar = ({
           <p
             data-testid="chat-error"
             role="alert"
-            className="rounded-2xl border border-[var(--stroke)] bg-white px-4 py-3 text-sm text-[var(--secondary-purple)]"
+            className="rounded-2xl border border-[var(--stroke)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--secondary-purple)]"
           >
             {error}
           </p>
@@ -169,13 +182,13 @@ export const ChatSidebar = ({
           disabled={sending}
           rows={3}
           placeholder="Ask or update the board..."
-          className="w-full resize-none rounded-2xl border border-[var(--stroke)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--navy-dark)] outline-none transition focus:border-[var(--primary-blue)] disabled:opacity-60"
+          className="w-full resize-none rounded-xl border border-[var(--stroke)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text)] outline-none transition-colors focus:border-[var(--primary-blue)] disabled:opacity-60"
         />
         <button
           type="submit"
           data-testid="chat-send"
           disabled={sending || !draft.trim()}
-          className="mt-3 w-full rounded-full bg-[var(--secondary-purple)] px-5 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-3 w-full rounded-full bg-gradient-to-r from-[var(--primary-blue)] to-[var(--secondary-purple)] px-5 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--navy-dark)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {sending ? "Sending..." : "Send"}
         </button>

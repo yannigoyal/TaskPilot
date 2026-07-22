@@ -1,0 +1,14 @@
+- main [ref=e3]:
+  - generic [ref=e4]:
+    - paragraph [ref=e5]: Sign in
+    - heading "TaskPilot" [level=1] [ref=e6]
+    - paragraph [ref=e7]: Enter your credentials to open your Kanban board.
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - text: Username
+        - textbox "Username" [ref=e10]
+      - generic [ref=e11]:
+        - text: Password
+        - textbox "Password" [ref=e12]
+      - button "Sign in" [ref=e13]
+    - generic [ref=e14]: MVP demo access

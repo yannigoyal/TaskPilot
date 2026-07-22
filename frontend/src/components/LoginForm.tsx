@@ -31,13 +31,13 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
       <main className="relative mx-auto flex min-h-screen max-w-lg items-center px-4 py-12 sm:px-6 sm:py-16">
         <section
-          className="w-full rounded-[32px] border border-[var(--stroke)] bg-white/80 p-6 shadow-[var(--shadow)] backdrop-blur sm:p-8"
+          className="w-full rounded-[28px] border border-[var(--stroke)] bg-[var(--glass)] p-6 shadow-[var(--shadow-lg)] backdrop-blur-2xl sm:p-8"
           data-testid="login-form"
         >
           <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[var(--gray-text)]">
             Sign in
           </p>
-          <h1 className="mt-3 font-display text-3xl font-semibold text-[var(--navy-dark)] sm:text-4xl">
+          <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-[var(--text)] sm:text-4xl">
             TaskPilot
           </h1>
           <p className="mt-3 text-sm leading-6 text-[var(--gray-text)]">
@@ -56,7 +56,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                 onChange={(event) => setUsername(event.target.value)}
                 autoComplete="username"
                 aria-label="Username"
-                className="mt-2 w-full rounded-2xl border border-[var(--stroke)] bg-[var(--surface)] px-4 py-3 text-[var(--navy-dark)] outline-none focus:border-[var(--primary-blue)]"
+                className="mt-2 w-full rounded-xl border border-[var(--stroke)] bg-[var(--surface)] px-4 py-3 text-[var(--text)] outline-none transition-colors focus:border-[var(--primary-blue)]"
               />
             </label>
 
@@ -71,13 +71,13 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                 onChange={(event) => setPassword(event.target.value)}
                 autoComplete="current-password"
                 aria-label="Password"
-                className="mt-2 w-full rounded-2xl border border-[var(--stroke)] bg-[var(--surface)] px-4 py-3 text-[var(--navy-dark)] outline-none focus:border-[var(--primary-blue)]"
+                className="mt-2 w-full rounded-xl border border-[var(--stroke)] bg-[var(--surface)] px-4 py-3 text-[var(--text)] outline-none transition-colors focus:border-[var(--primary-blue)]"
               />
             </label>
 
             {error ? (
               <p
-                className="rounded-2xl border border-[var(--stroke)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--secondary-purple)]"
+                className="rounded-xl border border-[var(--stroke)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--secondary-purple)]"
                 data-testid="login-error"
                 role="alert"
               >
@@ -87,7 +87,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
             <button
               type="submit"
-              className="w-full rounded-full bg-[var(--secondary-purple)] px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+              className="w-full rounded-full bg-gradient-to-r from-[var(--primary-blue)] to-[var(--secondary-purple)] px-6 py-3 text-sm font-semibold text-[var(--navy-dark)] transition hover:brightness-110"
             >
               Sign in
             </button>

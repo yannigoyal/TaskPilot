@@ -237,18 +237,26 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
   if (loading) {
     return (
       <div
-        className="flex min-h-screen items-center justify-center text-sm text-[var(--gray-text)]"
+        className="relative flex min-h-screen items-center justify-center text-sm text-[var(--gray-text)]"
         data-testid="board-loading"
       >
-        Loading board...
+        <BackgroundGlow />
+        <span className="flex items-center gap-3">
+          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[var(--stroke-strong)] border-t-[var(--primary-blue)]" />
+          Loading board...
+        </span>
       </div>
     );
   }
 
   if (error && !board) {
     return (
-      <div className="flex min-h-screen items-center justify-center px-6">
-        <p className="rounded-2xl border border-[var(--stroke)] bg-white px-6 py-4 text-sm text-[var(--secondary-purple)]" data-testid="board-error">
+      <div className="relative flex min-h-screen items-center justify-center px-6">
+        <BackgroundGlow />
+        <p
+          className="rounded-2xl border border-[var(--stroke)] bg-[var(--glass-strong)] px-6 py-4 text-sm text-[var(--text)] shadow-[var(--shadow)] backdrop-blur-xl"
+          data-testid="board-error"
+        >
           {error}
         </p>
       </div>
@@ -259,6 +267,8 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
     return null;
   }
 
+  const accentCycle = ["var(--primary-blue)", "var(--secondary-purple)", "var(--accent-yellow)"];
+
   return (
     <div className="relative overflow-hidden">
       <BackgroundGlow />
@@ -266,7 +276,7 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
       <main className="relative mx-auto flex min-h-screen max-w-[1500px] flex-col gap-8 px-4 pb-16 pt-8 sm:gap-10 sm:px-6 sm:pt-12">
         {error ? (
           <p
-            className="rounded-2xl border border-[var(--stroke)] bg-white/90 px-4 py-3 text-sm text-[var(--secondary-purple)]"
+            className="rounded-2xl border border-[var(--stroke)] bg-[var(--glass-strong)] px-4 py-3 text-sm text-[var(--text)] shadow-[var(--shadow)] backdrop-blur-xl"
             data-testid="board-error"
             role="alert"
           >
@@ -274,13 +284,13 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
           </p>
         ) : null}
 
-        <header className="flex flex-col gap-6 rounded-[32px] border border-[var(--stroke)] bg-white/80 p-5 shadow-[var(--shadow)] backdrop-blur sm:p-8">
+        <header className="flex flex-col gap-6 rounded-[28px] border border-[var(--stroke)] bg-[var(--glass)] p-5 shadow-[var(--shadow)] backdrop-blur-2xl sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[var(--gray-text)]">
                 Project Management
               </p>
-              <h1 className="mt-3 font-display text-3xl font-semibold text-[var(--navy-dark)] sm:text-4xl">
+              <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-[var(--text)] sm:text-4xl">
                 TaskPilot
               </h1>
               <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--gray-text)]">
@@ -294,7 +304,7 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
                   type="button"
                   onClick={onLogout}
                   data-testid="logout-button"
-                  className="rounded-full border border-[var(--stroke)] bg-white px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--navy-dark)] transition hover:border-[var(--primary-blue)] hover:text-[var(--primary-blue)]"
+                  className="rounded-full border border-[var(--stroke)] bg-[var(--surface-strong)] px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text)] transition-colors duration-150 hover:border-[var(--primary-blue)] hover:text-[var(--primary-blue)]"
                 >
                   Log out
                 </button>
@@ -309,13 +319,16 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
               </div>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-4">
-            {board.columns.map((column) => (
+          <div className="flex flex-wrap items-center gap-3">
+            {board.columns.map((column, index) => (
               <div
                 key={column.id}
-                className="flex items-center gap-2 rounded-full border border-[var(--stroke)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--navy-dark)]"
+                className="flex items-center gap-2 rounded-full border border-[var(--stroke)] bg-[var(--surface)]/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text)]"
               >
-                <span className="h-2 w-2 rounded-full bg-[var(--accent-yellow)]" />
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ background: accentCycle[index % accentCycle.length] }}
+                />
                 {column.title}
               </div>
             ))}
@@ -330,11 +343,12 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
           onDragEnd={handleDragEnd}
         >
           <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {board.columns.map((column) => (
+            {board.columns.map((column, index) => (
               <KanbanColumn
                 key={column.id}
                 column={column}
                 cards={column.cardIds.map((cardId) => board.cards[cardId])}
+                accent={accentCycle[index % accentCycle.length]}
                 onRename={handleRenameColumn}
                 onRenameCommit={handleRenameColumnCommit}
                 onAddCard={handleAddCard}
@@ -345,7 +359,7 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
           </section>
           <DragOverlay>
             {activeCard ? (
-              <div className="w-[260px]">
+              <div className="w-[260px] rotate-2">
                 <KanbanCardPreview card={activeCard} />
               </div>
             ) : null}

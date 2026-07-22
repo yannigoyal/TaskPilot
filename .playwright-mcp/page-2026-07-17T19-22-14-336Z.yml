@@ -1,0 +1,348 @@
+- generic [ref=e2]:
+  - region "Skip to main content":
+    - link "Skip to main content" [ref=e212] [cursor=pointer]:
+      - /url: "#__docusaurus_skipToContent_fallback"
+  - navigation "Main" [ref=e213]:
+    - generic [ref=e214]:
+      - generic [ref=e215]:
+        - button "Toggle navigation bar" [ref=e216] [cursor=pointer]
+        - link "Playwright logo Playwright" [ref=e219] [cursor=pointer]:
+          - /url: /
+          - img "Playwright logo" [ref=e221]
+          - generic [ref=e222]: Playwright
+      - button "Search (Control+k)" [ref=e224] [cursor=pointer]:
+        - generic [ref=e225]: Search
+        - generic [ref=e230]:
+          - generic [ref=e231]: Ctrl
+          - generic [ref=e232]: K
+  - main [ref=e236]:
+    - generic [ref=e240]:
+      - article [ref=e241]:
+        - navigation "Breadcrumbs" [ref=e242]:
+          - list [ref=e243]:
+            - listitem [ref=e244]:
+              - link "Home page" [ref=e245] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=e248]:
+              - generic [ref=e249]: Getting Started
+            - listitem [ref=e250]:
+              - generic [ref=e251]: Installation
+        - button "On this page" [ref=e253] [cursor=pointer]
+        - generic [ref=e254]:
+          - heading "Installation" [level=1] [ref=e256]
+          - heading [level=2] [ref=e257]:
+            - text: Introduction
+            - link "Direct link to Introduction" [ref=e258] [cursor=pointer]:
+              - /url: "#introduction"
+              - text: "#"
+          - paragraph [ref=e259]: Playwright Test is an end-to-end test framework for modern web apps. It bundles test runner, assertions, isolation, parallelization and rich tooling. Playwright supports Chromium, WebKit and Firefox on Windows, Linux and macOS, locally or in CI, headless or headed, with native mobile emulation for Chrome (Android) and Mobile Safari.
+          - paragraph [ref=e260]:
+            - strong [ref=e261]: You will learn
+          - list [ref=e262]:
+            - listitem [ref=e263]:
+              - link "How to install Playwright" [ref=e264] [cursor=pointer]:
+                - /url: /docs/intro#installing-playwright
+            - listitem [ref=e265]:
+              - link "What's installed" [ref=e266] [cursor=pointer]:
+                - /url: /docs/intro#whats-installed
+            - listitem [ref=e267]:
+              - link "How to run the example test" [ref=e268] [cursor=pointer]:
+                - /url: /docs/intro#running-the-example-test
+            - listitem [ref=e269]:
+              - link "How to open the HTML test report" [ref=e270] [cursor=pointer]:
+                - /url: /docs/intro#html-test-reports
+          - heading [level=2] [ref=e271]:
+            - text: Installing Playwright
+            - link "Direct link to Installing Playwright" [ref=e272] [cursor=pointer]:
+              - /url: "#installing-playwright"
+              - text: "#"
+          - paragraph [ref=e273]: Get started by installing Playwright using one of the following methods.
+          - heading [level=3] [ref=e274]:
+            - text: Using npm, yarn or pnpm
+            - link "Direct link to Using npm, yarn or pnpm" [ref=e275] [cursor=pointer]:
+              - /url: "#using-npm-yarn-or-pnpm"
+              - text: "#"
+          - paragraph [ref=e276]: The command below either initializes a new project or adds Playwright to an existing one.
+          - generic [ref=e277]:
+            - tablist [ref=e278]:
+              - tab "npm" [selected] [ref=e279] [cursor=pointer]
+              - tab "yarn" [ref=e280] [cursor=pointer]
+              - tab "pnpm" [ref=e281] [cursor=pointer]
+            - tabpanel [ref=e283]:
+              - generic [ref=e285]:
+                - code [ref=e287]:
+                  - generic [ref=e288]: npm init playwright@latest
+                - button "Copy code to clipboard" [ref=e290] [cursor=pointer]
+          - paragraph [ref=e296]: "When prompted, choose / confirm:"
+          - list [ref=e297]:
+            - listitem [ref=e298]: "TypeScript or JavaScript (default: TypeScript)"
+            - listitem [ref=e299]:
+              - text: "Tests folder name (default:"
+              - code [ref=e300]: tests
+              - text: ", or"
+              - code [ref=e301]: e2e
+              - text: if
+              - code [ref=e302]: tests
+              - text: already exists)
+            - listitem [ref=e303]: Add a GitHub Actions workflow (recommended for CI)
+            - listitem [ref=e304]: "Install Playwright browsers (default: yes)"
+          - paragraph [ref=e305]: You can re-run the command later; it does not overwrite existing tests.
+          - heading [level=3] [ref=e306]:
+            - text: Using the VS Code Extension
+            - link "Direct link to Using the VS Code Extension" [ref=e307] [cursor=pointer]:
+              - /url: "#using-the-vs-code-extension"
+              - text: "#"
+          - paragraph [ref=e308]:
+            - text: You can also create and run tests with the
+            - link "VS Code Extension" [ref=e309] [cursor=pointer]:
+              - /url: /docs/getting-started-vscode
+            - text: .
+          - heading [level=2] [ref=e310]:
+            - text: What's Installed
+            - link "Direct link to What's Installed" [ref=e311] [cursor=pointer]:
+              - /url: "#whats-installed"
+              - text: "#"
+          - paragraph [ref=e312]: Playwright downloads required browser binaries and creates the scaffold below.
+          - generic [ref=e314]:
+            - code [ref=e316]:
+              - generic [ref=e317]: "playwright.config.ts # Test configuration"
+              - generic [ref=e318]: package.json
+              - generic [ref=e319]: "package-lock.json # Or yarn.lock / pnpm-lock.yaml"
+              - generic [ref=e320]: tests/
+              - generic [ref=e321]: "example.spec.ts # Minimal example test"
+            - button "Copy code to clipboard" [ref=e323] [cursor=pointer]
+          - paragraph [ref=e329]:
+            - text: The
+            - link "playwright.config" [ref=e330] [cursor=pointer]:
+              - /url: /docs/test-configuration
+            - text: "centralizes configuration: target browsers, timeouts, retries, projects, reporters and more. In existing projects dependencies are added to your current"
+            - code [ref=e331]: package.json
+            - text: .
+          - paragraph [ref=e332]:
+            - code [ref=e333]: tests/
+            - text: contains a minimal starter test.
+          - heading [level=2] [ref=e334]:
+            - text: Running the Example Test
+            - link "Direct link to Running the Example Test" [ref=e335] [cursor=pointer]:
+              - /url: "#running-the-example-test"
+              - text: "#"
+          - paragraph [ref=e336]:
+            - text: By default tests run headless in parallel across Chromium, Firefox and WebKit (configurable in
+            - link "playwright.config" [ref=e337] [cursor=pointer]:
+              - /url: /docs/test-configuration
+            - text: ). Output and aggregated results display in the terminal.
+          - generic [ref=e338]:
+            - tablist [ref=e339]:
+              - tab "npm" [selected] [ref=e340] [cursor=pointer]
+              - tab "yarn" [ref=e341] [cursor=pointer]
+              - tab "pnpm" [ref=e342] [cursor=pointer]
+            - tabpanel [ref=e344]:
+              - generic [ref=e346]:
+                - code [ref=e348]:
+                  - generic [ref=e349]: npx playwright test
+                - button "Copy code to clipboard" [ref=e351] [cursor=pointer]
+          - paragraph [ref=e357]:
+            - img "tests running in command line" [ref=e358]
+          - paragraph [ref=e359]: "Tips:"
+          - list [ref=e360]:
+            - listitem [ref=e361]:
+              - text: "See the browser window: add"
+              - code [ref=e362]: "--headed"
+              - text: .
+            - listitem [ref=e363]:
+              - text: "Run a single project/browser:"
+              - code [ref=e364]: "--project=chromium"
+              - text: .
+            - listitem [ref=e365]:
+              - text: "Run one file:"
+              - code [ref=e366]: npx playwright test tests/example.spec.ts
+              - text: .
+            - listitem [ref=e367]:
+              - text: "Open testing UI:"
+              - code [ref=e368]: "--ui"
+              - text: .
+          - paragraph [ref=e369]:
+            - text: See
+            - link "Running Tests" [ref=e370] [cursor=pointer]:
+              - /url: /docs/running-tests
+            - text: for details on filtering, headed mode, sharding and retries.
+          - heading [level=2] [ref=e371]:
+            - text: HTML Test Reports
+            - link "Direct link to HTML Test Reports" [ref=e372] [cursor=pointer]:
+              - /url: "#html-test-reports"
+              - text: "#"
+          - paragraph [ref=e373]:
+            - text: After a test run, the
+            - link "HTML Reporter" [ref=e374] [cursor=pointer]:
+              - /url: /docs/test-reporters#html-reporter
+            - text: provides a dashboard filterable by the browser, passed, failed, skipped, flaky and more. Click a test to inspect errors, attachments and steps. It auto-opens only when failures occur; open manually with the command below.
+          - generic [ref=e375]:
+            - tablist [ref=e376]:
+              - tab "npm" [selected] [ref=e377] [cursor=pointer]
+              - tab "yarn" [ref=e378] [cursor=pointer]
+              - tab "pnpm" [ref=e379] [cursor=pointer]
+            - tabpanel [ref=e381]:
+              - generic [ref=e383]:
+                - code [ref=e385]:
+                  - generic [ref=e386]: npx playwright show-report
+                - button "Copy code to clipboard" [ref=e388] [cursor=pointer]
+          - paragraph [ref=e394]:
+            - img "HTML Report" [ref=e395]
+          - heading [level=2] [ref=e396]:
+            - text: Running the Example Test in UI Mode
+            - link "Direct link to Running the Example Test in UI Mode" [ref=e397] [cursor=pointer]:
+              - /url: "#running-the-example-test-in-ui-mode"
+              - text: "#"
+          - paragraph [ref=e398]:
+            - text: Run tests with
+            - link "UI Mode" [ref=e399] [cursor=pointer]:
+              - /url: /docs/test-ui-mode
+            - text: for watch mode, live step view, time travel debugging and more.
+          - generic [ref=e400]:
+            - tablist [ref=e401]:
+              - tab "npm" [selected] [ref=e402] [cursor=pointer]
+              - tab "yarn" [ref=e403] [cursor=pointer]
+              - tab "pnpm" [ref=e404] [cursor=pointer]
+            - tabpanel [ref=e406]:
+              - generic [ref=e408]:
+                - code [ref=e410]:
+                  - generic [ref=e411]: npx playwright test --ui
+                - button "Copy code to clipboard" [ref=e413] [cursor=pointer]
+          - paragraph [ref=e419]:
+            - img "UI Mode" [ref=e420]
+          - paragraph [ref=e421]:
+            - text: See the
+            - link "detailed guide on UI Mode" [ref=e422] [cursor=pointer]:
+              - /url: /docs/test-ui-mode
+            - text: for watch filters, step details and trace integration.
+          - heading [level=2] [ref=e423]:
+            - text: Updating Playwright
+            - link "Direct link to Updating Playwright" [ref=e424] [cursor=pointer]:
+              - /url: "#updating-playwright"
+              - text: "#"
+          - paragraph [ref=e425]: "Update Playwright and download new browser binaries and their dependencies:"
+          - generic [ref=e426]:
+            - tablist [ref=e427]:
+              - tab "npm" [selected] [ref=e428] [cursor=pointer]
+              - tab "yarn" [ref=e429] [cursor=pointer]
+              - tab "pnpm" [ref=e430] [cursor=pointer]
+            - tabpanel [ref=e432]:
+              - generic [ref=e434]:
+                - code [ref=e436]:
+                  - generic [ref=e437]: npm install -D @playwright/test@latest
+                  - generic [ref=e438]: npx playwright install --with-deps
+                - button "Copy code to clipboard" [ref=e440] [cursor=pointer]
+          - paragraph [ref=e446]: "Check your installed version:"
+          - generic [ref=e447]:
+            - tablist [ref=e448]:
+              - tab "npm" [selected] [ref=e449] [cursor=pointer]
+              - tab "yarn" [ref=e450] [cursor=pointer]
+              - tab "pnpm" [ref=e451] [cursor=pointer]
+            - tabpanel [ref=e453]:
+              - generic [ref=e455]:
+                - code [ref=e457]:
+                  - generic [ref=e458]: npx playwright --version
+                - button "Copy code to clipboard" [ref=e460] [cursor=pointer]
+          - heading [level=2] [ref=e466]:
+            - text: System requirements
+            - link "Direct link to System requirements" [ref=e467] [cursor=pointer]:
+              - /url: "#system-requirements"
+              - text: "#"
+          - list [ref=e468]:
+            - listitem [ref=e469]: "Node.js: latest 22.x, 24.x or 26.x."
+            - listitem [ref=e470]: Windows 11+, Windows Server 2019+ or Windows Subsystem for Linux (WSL).
+            - listitem [ref=e471]: macOS 14 (Sonoma) or later.
+            - listitem [ref=e472]: Debian 12 / 13, Ubuntu 22.04 / 24.04 / 26.04 (x86-64 or arm64).
+          - heading [level=2] [ref=e473]:
+            - text: What's next
+            - link "Direct link to What's next" [ref=e474] [cursor=pointer]:
+              - /url: "#whats-next"
+              - text: "#"
+          - list [ref=e475]:
+            - listitem [ref=e476]:
+              - link "Write tests using web-first assertions, fixtures and locators" [ref=e477] [cursor=pointer]:
+                - /url: /docs/writing-tests
+            - listitem [ref=e478]:
+              - link "Run single or multiple tests; headed mode" [ref=e479] [cursor=pointer]:
+                - /url: /docs/running-tests
+            - listitem [ref=e480]:
+              - link "Generate tests with Codegen" [ref=e481] [cursor=pointer]:
+                - /url: /docs/codegen-intro
+            - listitem [ref=e482]:
+              - link "View a trace of your tests" [ref=e483] [cursor=pointer]:
+                - /url: /docs/trace-viewer-intro
+      - navigation "Docs pages" [ref=e484]:
+        - link "Next Writing tests »" [ref=e485] [cursor=pointer]:
+          - /url: /docs/writing-tests
+          - generic [ref=e486]: Next
+          - generic [ref=e487]: Writing tests »
+  - contentinfo [ref=e488]:
+    - generic [ref=e489]:
+      - generic [ref=e490]:
+        - generic [ref=e491]:
+          - generic [ref=e492]: Learn
+          - list [ref=e493]:
+            - listitem [ref=e494]:
+              - link "Getting started" [ref=e495] [cursor=pointer]:
+                - /url: /docs/intro
+            - listitem [ref=e496]:
+              - link [ref=e497] [cursor=pointer]:
+                - /url: https://learn.microsoft.com/en-us/training/modules/build-with-playwright/
+                - text: Playwright Training
+                - img "(opens in new tab)" [ref=e498]
+            - listitem [ref=e500]:
+              - link "Learn Videos" [ref=e501] [cursor=pointer]:
+                - /url: /community/learn-videos
+            - listitem [ref=e502]:
+              - link "Feature Videos" [ref=e503] [cursor=pointer]:
+                - /url: /community/feature-videos
+        - generic [ref=e504]:
+          - generic [ref=e505]: Community
+          - list [ref=e506]:
+            - listitem [ref=e507]:
+              - link [ref=e508] [cursor=pointer]:
+                - /url: https://stackoverflow.com/questions/tagged/playwright
+                - text: Stack Overflow
+                - img "(opens in new tab)" [ref=e509]
+            - listitem [ref=e511]:
+              - link [ref=e512] [cursor=pointer]:
+                - /url: https://aka.ms/playwright/discord
+                - text: Discord
+                - img "(opens in new tab)" [ref=e513]
+            - listitem [ref=e515]:
+              - link [ref=e516] [cursor=pointer]:
+                - /url: https://x.com/playwrightweb
+                - text: X
+                - img "(opens in new tab)" [ref=e517]
+            - listitem [ref=e519]:
+              - link [ref=e520] [cursor=pointer]:
+                - /url: https://www.linkedin.com/company/playwrightweb
+                - text: LinkedIn
+                - img "(opens in new tab)" [ref=e521]
+        - generic [ref=e523]:
+          - generic [ref=e524]: More
+          - list [ref=e525]:
+            - listitem [ref=e526]:
+              - link [ref=e527] [cursor=pointer]:
+                - /url: https://github.com/microsoft/playwright
+                - text: GitHub
+                - img "(opens in new tab)" [ref=e528]
+            - listitem [ref=e530]:
+              - link [ref=e531] [cursor=pointer]:
+                - /url: https://www.youtube.com/channel/UC46Zj8pDH5tDosqm1gd7WTg
+                - text: YouTube
+                - img "(opens in new tab)" [ref=e532]
+            - listitem [ref=e534]:
+              - link [ref=e535] [cursor=pointer]:
+                - /url: https://dev.to/playwright
+                - text: Blog
+                - img "(opens in new tab)" [ref=e536]
+            - listitem [ref=e538]:
+              - link "Ambassadors" [ref=e539] [cursor=pointer]:
+                - /url: /community/ambassadors
+            - listitem [ref=e540]:
+              - link [ref=e541] [cursor=pointer]:
+                - /url: https://go.microsoft.com/fwlink/?LinkId=521839
+                - text: Microsoft Privacy Statement
+                - img "(opens in new tab)" [ref=e542]
+      - generic [ref=e544]: Copyright © 2026 Microsoft
